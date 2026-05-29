@@ -10,4 +10,4 @@ python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl -
 python main.py --base 100 --increment 20 --pretrained_model_name dino-vitb16-sl --dataset tinyimagenet --data_dir datasets/tinyimagenet --num_classes 200 --trail_name mix_increment_mngmm_dinovb16_sl_tiny_imagenet
 python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl --dataset imagenet100 --data_dir datasets/imagenet100 --trail_name mix_increment_mngmm_dinovb16_sl_imagenet100
 python main.py --base 100 --increment 20 --pretrained_model_name dino-vitb16-sl --dataset cub200 --data_dir datasets/cub200 --num_classes 200 --trail_name mix_increment_mngmm_dinovb16_sl_cub200
-python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
+python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det

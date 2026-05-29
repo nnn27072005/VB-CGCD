@@ -56,8 +56,10 @@ python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl -
 GC10-DET training:
 
 ```
-python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
+python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
 ```
+
+GC10-DET follows the same 50% labeled and 5-session protocol: 5 labeled classes, 1 novel class per online session, 80% of available train samples per class, and 20% known-class replay per session. The sample counts are computed from the extracted GC10-DET train split so imbalanced Kaggle class counts are handled safely.
 
 ## Citation
 

@@ -175,8 +175,28 @@ class MNGMMClassifier():
 
 
     def pre_processing(self, features, labels):
+        features = np.asarray(features)
+
+        if self.global_params is not None:
+            param_dim = int(np.asarray(self.global_params["class_means"]).shape[1])
+            if features.shape[1] == param_dim:
+                return features, labels
+
         if self.pca is None:
-            self.pca = PCA(n_components=self.num_dim)
+            max_components = min(features.shape[0] - 1, features.shape[1])
+            if max_components < 1:
+                raise ValueError(
+                    f"Need at least 2 samples for PCA, got {features.shape[0]}"
+                )
+
+            n_components = min(self.num_dim, max_components)
+            if n_components != self.num_dim:
+                print(
+                    f"Reducing PCA n_components from {self.num_dim} to {n_components} "
+                    f"for {features.shape[0]} samples and {features.shape[1]} features"
+                )
+
+            self.pca = PCA(n_components=n_components)
             features = self.pca.fit_transform(features)
         else:
             features = self.pca.transform(features)
