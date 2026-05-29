@@ -59,6 +59,10 @@ class MNGMMClassifier():
 
         self.early_stop_ratio = early_stop_ratio
 
+    def _effective_batch_size(self, n_samples):
+        if n_samples < 1:
+            raise ValueError("MNGMMClassifier needs at least 1 training sample")
+        return min(self.batch_size, n_samples)
 
     def model(self, X, y=None, num_classes=2, global_params=None, **kwargs):
         num_features = X.shape[1]
@@ -70,7 +74,7 @@ class MNGMMClassifier():
             class_means = numpyro.param("class_means", global_params["class_means"])
             class_covs = numpyro.param("class_covs", global_params["class_covs"])
         
-        with numpyro.plate("batch", X.shape[0], subsample_size=self.batch_size) as ind:
+        with numpyro.plate("batch", X.shape[0], subsample_size=self._effective_batch_size(X.shape[0])) as ind:
             X_batch = X[ind]
             y_batch = y[ind] if y is not None else None
             
@@ -95,6 +99,8 @@ class MNGMMClassifier():
 
 
     def run_inference(self, X, y, test_X, test_y, log_prefix="", use_correct_scaling_factor=False):
+        if X.shape[0] < 1:
+            raise ValueError(f"No training samples available for {log_prefix or 'MNGMM inference'}")
 
         init_lr = self.init_lr
 
@@ -254,6 +260,11 @@ class MNGMMClassifier():
             else:
                 features = novel_features
                 labels = novel_labels
+
+            if len(features) < 1:
+                print(f"Skipping stage {current_stage} S-learning because no samples were selected")
+                self.global_params = copy.deepcopy(self.params)
+                return
     
             self.params = self.run_inference(
                 jnp.array(features),
