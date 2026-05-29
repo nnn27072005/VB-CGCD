@@ -1,20 +1,22 @@
 !python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name fix_v2_gc10det
-2026-05-29 08:44:16.919355: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+
+
+2026-05-29 09:34:55.948560: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-E0000 00:00:1780044257.456930     317 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
-E0000 00:00:1780044257.557528     317 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
-W0000 00:00:1780044258.547471     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780044258.547508     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780044258.547513     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780044258.547516     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+E0000 00:00:1780047296.148331     317 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1780047296.206032     317 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1780047296.705616     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780047296.705682     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780047296.705696     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780047296.705705     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-pytorch_model.bin: 100%|█████████████████████| 343M/343M [00:07<00:00, 43.9MB/s]
-Loading weights: 100%|█| 198/198 [00:00<00:00, 2479.42it/s, Materializing param=
+pytorch_model.bin: 100%|█████████████████████| 343M/343M [00:08<00:00, 42.8MB/s]
+Loading weights: 100%|█| 198/198 [00:00<00:00, 3511.82it/s, Materializing param=
 ViTModel LOAD REPORT from: facebook/dino-vitb16
 Key                 | Status  | 
 --------------------+---------+-
-pooler.dense.bias   | MISSING | 
 pooler.dense.weight | MISSING | 
+pooler.dense.bias   | MISSING | 
 
 Notes:
 - MISSING	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
@@ -32,32 +34,32 @@ Epoch 8/10 | Loss: 1.2148 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.712
 Epoch 9/10 | Loss: 1.3498 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.7928 | Contra: 0.5570
 Epoch 10/10 | Loss: 0.9811 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.3892 | Contra: 0.5919
 --- Re-extracting Features for VB Pipeline (Stage 0) ---
-Capping PCA components: 128 → 99 (samples=100, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 99d (explained variance: 100.00%)
+Capping PCA components: 128 -> 99 (samples=100, raw_dim=384)
+Feature pipeline: 384 -> fixed standardize -> fixed PCA 99d (explained variance: 100.00%)
 scaling factor: 1.2
 Auto-enabled diagonal covariance (min samples/class=20, dim=99)
 Initializing model
   0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 10484.0352, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.026380090042948723
- 10%|████                                     | 99/1000 [00:13<01:12, 12.50it/s]Step 100: loss = 10472.3379, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.02111971750855446
- 20%|███████▉                                | 199/1000 [00:21<01:03, 12.61it/s]Step 200: loss = 10451.0566, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.014086989685893059
- 30%|███████████▉                            | 299/1000 [00:30<00:56, 12.50it/s]Step 300: loss = 10430.1436, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.00945855863392353
- 40%|███████████████▉                        | 399/1000 [00:38<00:47, 12.61it/s]Step 400: loss = 10409.5898, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.006392288953065872
- 50%|███████████████████▉                    | 499/1000 [00:46<00:41, 12.16it/s]Step 500: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.0043481141328811646
- 50%|████████████████████                    | 501/1000 [00:46<00:48, 10.26it/s]Step 501: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.0043481141328811646, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:46<00:46, 10.72it/s]
+ 10%|████                                     | 99/1000 [00:15<01:17, 11.67it/s]Step 100: loss = 10472.3379, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.02111971750855446
+ 20%|███████▉                                | 199/1000 [00:23<01:07, 11.85it/s]Step 200: loss = 10451.0576, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.014086989685893059
+ 30%|███████████▉                            | 299/1000 [00:32<00:59, 11.75it/s]Step 300: loss = 10430.1436, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.009458486922085285
+ 40%|███████████████▉                        | 399/1000 [00:41<00:53, 11.30it/s]Step 400: loss = 10409.5898, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.0063923499546945095
+ 50%|███████████████████▉                    | 499/1000 [00:50<00:43, 11.63it/s]Step 500: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.004348103888332844
+ 50%|████████████████████                    | 501/1000 [00:50<00:50,  9.82it/s]Step 501: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = 0.02431807853281498, cov = 0.004348103888332844, early_stop_flag = True
+ 50%|████████████████████                    | 501/1000 [00:50<00:50,  9.92it/s]
 Number of Pseudo-Novel Samples: 100 / 100
 Initializing model
   0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 10484.0352, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.026380090042948723
- 10%|████                                     | 99/1000 [00:08<01:17, 11.60it/s]Step 100: loss = 10472.3379, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.02111971750855446
- 20%|███████▉                                | 199/1000 [00:16<01:02, 12.81it/s]Step 200: loss = 10451.0566, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.014086989685893059
- 30%|███████████▉                            | 299/1000 [00:24<00:53, 13.05it/s]Step 300: loss = 10430.1436, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.00945855863392353
- 40%|███████████████▉                        | 399/1000 [00:32<00:47, 12.78it/s]Step 400: loss = 10409.5898, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.006392288953065872
- 50%|███████████████████▉                    | 499/1000 [00:39<00:39, 12.81it/s]Step 500: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.0043481141328811646
- 60%|███████████████████████▉                | 599/1000 [00:47<00:31, 12.69it/s]Step 600: loss = 10369.5488, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.0029765996150672436
- 70%|███████████████████████████▉            | 699/1000 [00:55<00:23, 12.85it/s]Step 700: loss = 10350.0508, train_acc = 40/100, 40.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.002050666371360421
- 80%|███████████████████████████████▉        | 799/1000 [01:03<00:15, 12.93it/s]Step 800: loss = 10330.8936, train_acc = 41/100, 41.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.0014216267736628652
- 90%|███████████████████████████████████▉    | 899/1000 [01:11<00:07, 12.92it/s]Step 900: loss = 10312.0732, train_acc = 41/100, 41.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.000991684733889997
-100%|███████████████████████████████████████| 1000/1000 [01:19<00:00, 12.56it/s]
+ 10%|████                                     | 99/1000 [00:08<01:17, 11.66it/s]Step 100: loss = 10472.3379, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.02111971750855446
+ 20%|███████▉                                | 199/1000 [00:17<01:08, 11.68it/s]Step 200: loss = 10451.0566, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.014086989685893059
+ 30%|███████████▉                            | 299/1000 [00:25<01:00, 11.62it/s]Step 300: loss = 10430.1436, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.009458486922085285
+ 40%|███████████████▉                        | 399/1000 [00:34<00:50, 11.91it/s]Step 400: loss = 10409.5898, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.0063923499546945095
+ 50%|███████████████████▉                    | 499/1000 [00:43<00:42, 11.76it/s]Step 500: loss = 10389.3926, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.004348103888332844
+ 60%|███████████████████████▉                | 599/1000 [00:51<00:33, 11.82it/s]Step 600: loss = 10369.5488, train_acc = 40/100, 40.00%,  test_acc = 64/232, 27.59%, last_cov = nan, cov = 0.0029766096267849207
+ 70%|███████████████████████████▉            | 699/1000 [01:00<00:24, 12.17it/s]Step 700: loss = 10350.0508, train_acc = 40/100, 40.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.0020506870932877064
+ 80%|███████████████████████████████▉        | 799/1000 [01:08<00:17, 11.82it/s]Step 800: loss = 10330.8936, train_acc = 41/100, 41.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.0014216294512152672
+ 90%|███████████████████████████████████▉    | 899/1000 [01:17<00:08, 11.72it/s]Step 900: loss = 10312.0723, train_acc = 41/100, 41.00%,  test_acc = 63/232, 27.16%, last_cov = nan, cov = 0.000991675304248929
+100%|███████████████████████████████████████| 1000/1000 [01:25<00:00, 11.65it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
@@ -78,48 +80,47 @@ Epoch 8/10 | Loss: 1.7968 | Ent_Inter: 0.6105 | Ent_Old: 0.1328 | Ent_New: 0.008
 Epoch 9/10 | Loss: 1.7875 | Ent_Inter: 0.6031 | Ent_Old: 0.1309 | Ent_New: 0.0091 | Contra: 0.5222
 Epoch 10/10 | Loss: 1.6782 | Ent_Inter: 0.5916 | Ent_Old: 0.0427 | Ent_New: 0.0106 | Contra: 0.5167
 --- Re-extracting Features for VB Pipeline ---
-Capping PCA components: 128 → 69 (samples=70, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 69d (explained variance: 100.00%)
+Feature pipeline: 384 -> reused standardize -> reused PCA 99d
 Clustering novel classes: 1 Offset: 5
 label_offset 5
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
 Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5.]), array([10, 10, 10, 10, 10, 20]))
-Re-initialized global_params for 5 old + 1 novel classes (dim=69)
-Auto-enabled diagonal covariance (min samples/class=10, dim=69)
+Preserved old global_params; updated novel classes 5-5 (dim=99)
+Auto-enabled diagonal covariance (min samples/class=10, dim=99)
 HAPPY prototype replay added: 9 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 6597.5903, train_acc = 32/79, 40.51%,  test_acc = 19/41, 46.34%, last_cov = 4.309132099151611, cov = 0.08428476750850677
- 10%|████                                     | 99/1000 [00:13<01:10, 12.76it/s]Step 100: loss = 6591.1250, train_acc = 33/79, 41.77%,  test_acc = 19/41, 46.34%, last_cov = 4.309132099151611, cov = 0.07192934304475784
- 20%|███████▉                                | 199/1000 [00:21<01:05, 12.30it/s]Step 200: loss = 6579.4072, train_acc = 33/79, 41.77%,  test_acc = 20/41, 48.78%, last_cov = 4.309132099151611, cov = 0.053883377462625504
- 30%|███████████▉                            | 299/1000 [00:29<00:57, 12.11it/s]Step 300: loss = 6567.9463, train_acc = 33/79, 41.77%,  test_acc = 20/41, 48.78%, last_cov = 4.309132099151611, cov = 0.040546681731939316
- 40%|███████████████▉                        | 399/1000 [00:37<00:47, 12.71it/s]Step 400: loss = 6556.7300, train_acc = 33/79, 41.77%,  test_acc = 20/41, 48.78%, last_cov = 4.309132099151611, cov = 0.030647214502096176
- 50%|███████████████████▉                    | 499/1000 [00:45<00:40, 12.48it/s]Step 500: loss = 6545.7510, train_acc = 33/79, 41.77%,  test_acc = 21/41, 51.22%, last_cov = 4.309132099151611, cov = 0.02326865866780281
- 60%|███████████████████████▉                | 599/1000 [00:53<00:31, 12.74it/s]Step 600: loss = 6535.0020, train_acc = 33/79, 41.77%,  test_acc = 21/41, 51.22%, last_cov = 4.309132099151611, cov = 0.017744602635502815
- 70%|███████████████████████████▉            | 699/1000 [01:01<00:24, 12.53it/s]Step 700: loss = 6524.4766, train_acc = 33/79, 41.77%,  test_acc = 21/41, 51.22%, last_cov = 4.309132099151611, cov = 0.013591687195003033
- 80%|███████████████████████████████▉        | 799/1000 [01:10<00:16, 12.50it/s]Step 800: loss = 6514.1670, train_acc = 33/79, 41.77%,  test_acc = 21/41, 51.22%, last_cov = 4.309132099151611, cov = 0.01045604981482029
- 90%|███████████████████████████████████▉    | 899/1000 [01:18<00:07, 12.70it/s]Step 900: loss = 6504.0684, train_acc = 33/79, 41.77%,  test_acc = 21/41, 51.22%, last_cov = 4.309132099151611, cov = 0.008078645914793015
-100%|███████████████████████████████████████| 1000/1000 [01:26<00:00, 11.59it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 515269.4062, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 11.402201652526855
+ 10%|████                                    | 100/1000 [00:12<01:22, 10.85it/s]Step 100: loss = 513964.7500, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 12.642836570739746
+ 20%|████████                                | 200/1000 [00:22<01:11, 11.20it/s]Step 200: loss = 511613.8125, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 15.233295440673828
+ 30%|████████████                            | 300/1000 [00:31<01:01, 11.41it/s]Step 300: loss = 509331.5312, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 18.263391494750977
+ 40%|████████████████                        | 400/1000 [00:39<00:50, 11.79it/s]Step 400: loss = 507115.4375, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 21.79747772216797
+ 50%|████████████████████                    | 500/1000 [00:48<00:43, 11.45it/s]Step 500: loss = 504963.1875, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 25.904258728027344
+ 60%|████████████████████████                | 600/1000 [00:57<00:36, 11.06it/s]Step 600: loss = 502872.5000, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 30.658727645874023
+ 70%|████████████████████████████            | 700/1000 [01:06<00:26, 11.22it/s]Step 700: loss = 500841.2500, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 36.12918472290039
+ 80%|████████████████████████████████        | 800/1000 [01:15<00:17, 11.55it/s]Step 800: loss = 498867.3750, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 42.38072204589844
+ 90%|████████████████████████████████████    | 900/1000 [01:24<00:08, 11.89it/s]Step 900: loss = 496948.8750, train_acc = 24/79, 30.38%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 49.50724792480469
+100%|███████████████████████████████████████| 1000/1000 [01:32<00:00, 10.78it/s]
 Number of Pseudo-Novel Samples: 20 / 70
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 1820.0586, train_acc = 10/23, 43.48%,  test_acc = 19/41, 46.34%, last_cov = 4.309132099151611, cov = 0.08428476750850677
- 10%|████                                     | 99/1000 [00:10<01:11, 12.61it/s]Step 100: loss = 1817.9246, train_acc = 10/23, 43.48%,  test_acc = 20/41, 48.78%, last_cov = 4.309132099151611, cov = 0.07193019986152649
- 20%|███████▉                                | 199/1000 [00:18<01:05, 12.31it/s]Step 200: loss = 1814.0496, train_acc = 10/23, 43.48%,  test_acc = 23/41, 56.10%, last_cov = 4.309132099151611, cov = 0.05389557033777237
- 30%|███████████▉                            | 299/1000 [00:26<00:55, 12.73it/s]Step 300: loss = 1810.2513, train_acc = 10/23, 43.48%,  test_acc = 23/41, 56.10%, last_cov = 4.309132099151611, cov = 0.04057301580905914
- 40%|███████████████▉                        | 399/1000 [00:34<00:47, 12.70it/s]Step 400: loss = 1806.5275, train_acc = 10/23, 43.48%,  test_acc = 24/41, 58.54%, last_cov = 4.309132099151611, cov = 0.030685050413012505
- 50%|███████████████████▉                    | 499/1000 [00:42<00:40, 12.35it/s]Step 500: loss = 1802.8765, train_acc = 12/23, 52.17%,  test_acc = 25/41, 60.98%, last_cov = 4.309132099151611, cov = 0.023314258083701134
- 60%|███████████████████████▉                | 599/1000 [00:50<00:32, 12.46it/s]Step 600: loss = 1799.2960, train_acc = 12/23, 52.17%,  test_acc = 26/41, 63.41%, last_cov = 4.309132099151611, cov = 0.017793873324990273
- 70%|███████████████████████████▉            | 699/1000 [00:58<00:23, 12.86it/s]Step 700: loss = 1795.7849, train_acc = 12/23, 52.17%,  test_acc = 27/41, 65.85%, last_cov = 4.309132099151611, cov = 0.013642645440995693
- 80%|███████████████████████████████▉        | 799/1000 [01:06<00:16, 12.27it/s]Step 800: loss = 1792.3413, train_acc = 12/23, 52.17%,  test_acc = 28/41, 68.29%, last_cov = 4.309132099151611, cov = 0.010506123304367065
- 90%|███████████████████████████████████▉    | 899/1000 [01:14<00:08, 12.27it/s]Step 900: loss = 1788.9636, train_acc = 15/23, 65.22%,  test_acc = 28/41, 68.29%, last_cov = 4.309132099151611, cov = 0.00812645722180605
-100%|███████████████████████████████████████| 1000/1000 [01:23<00:00, 11.99it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 5323.4658, train_acc = 22/23, 95.65%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 11.402201652526855
+ 10%|████                                    | 100/1000 [00:11<01:18, 11.42it/s]Step 100: loss = 5320.3594, train_acc = 22/23, 95.65%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 12.642451286315918
+ 20%|████████                                | 200/1000 [00:20<01:13, 10.83it/s]Step 200: loss = 5314.7563, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 15.226658821105957
+ 30%|████████████                            | 300/1000 [00:29<01:00, 11.52it/s]Step 300: loss = 5309.3037, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 18.243825912475586
+ 40%|████████████████                        | 400/1000 [00:38<00:54, 10.93it/s]Step 400: loss = 5303.9980, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 21.75547981262207
+ 50%|████████████████████                    | 500/1000 [00:47<00:43, 11.48it/s]Step 500: loss = 5298.8325, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 25.827247619628906
+ 60%|████████████████████████                | 600/1000 [00:56<00:35, 11.40it/s]Step 600: loss = 5293.8008, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 30.528411865234375
+ 70%|████████████████████████████            | 700/1000 [01:05<00:26, 11.33it/s]Step 700: loss = 5288.9023, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 35.91707229614258
+ 80%|████████████████████████████████        | 800/1000 [01:14<00:17, 11.37it/s]Step 800: loss = 5284.1313, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 42.067718505859375
+ 90%|████████████████████████████████████    | 900/1000 [01:22<00:08, 11.80it/s]Step 900: loss = 5279.4829, train_acc = 23/23, 100.00%,  test_acc = 41/41, 100.00%, last_cov = 0.0006824909942224622, cov = 49.06154251098633
+100%|███████████████████████████████████████| 1000/1000 [01:31<00:00, 10.92it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    39   |   273   | 14.285714285714286 |
-|   Old   |    11   |   232   | 4.741379310344827  |
-|   New   |    28   |    41   | 68.29268292682927  |
-|    S0   |    11   |   232   | 4.741379310344827  |
+|   All   |    41   |   273   | 15.018315018315018 |
+|   Old   |    0    |   232   |        0.0         |
+|   New   |    41   |    41   |       100.0        |
+|    S0   |    0    |   232   |        0.0         |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 2) ---
 Epoch 1/10 | Loss: 6.3484 | Ent_Inter: 0.6765 | Ent_Old: 1.6320 | Ent_New: 3.0249 | Contra: 0.5075
@@ -133,42 +134,44 @@ Epoch 8/10 | Loss: 1.6480 | Ent_Inter: 0.3529 | Ent_Old: 0.0579 | Ent_New: 0.056
 Epoch 9/10 | Loss: 1.7344 | Ent_Inter: 0.3817 | Ent_Old: 0.1119 | Ent_New: 0.0493 | Contra: 0.5957
 Epoch 10/10 | Loss: 1.7573 | Ent_Inter: 0.3540 | Ent_Old: 0.1506 | Ent_New: 0.0563 | Contra: 0.5982
 --- Re-extracting Features for VB Pipeline ---
-Capping PCA components: 128 → 79 (samples=80, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 79d (explained variance: 100.00%)
+Feature pipeline: 384 -> reused standardize -> reused PCA 99d
 Clustering novel classes: 1 Offset: 6
 label_offset 6
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
 Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6.]), array([10, 10, 10, 10, 10, 10, 20]))
-Re-initialized global_params for 6 old + 1 novel classes (dim=79)
-Auto-enabled diagonal covariance (min samples/class=10, dim=79)
+Preserved old global_params; updated novel classes 6-6 (dim=99)
+Auto-enabled diagonal covariance (min samples/class=10, dim=99)
 HAPPY prototype replay added: 14 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 8693.3477, train_acc = 35/94, 37.23%,  test_acc = 82/130, 63.08%, last_cov = 0.5560187697410583, cov = 0.041485149413347244
- 10%|████                                     | 99/1000 [00:13<01:11, 12.65it/s]Step 100: loss = 8684.5879, train_acc = 35/94, 37.23%,  test_acc = 82/130, 63.08%, last_cov = 0.5560187697410583, cov = 0.03465009108185768
- 20%|███████▉                                | 199/1000 [00:21<01:05, 12.20it/s]Step 200: loss = 8668.7383, train_acc = 35/94, 37.23%,  test_acc = 82/130, 63.08%, last_cov = 0.5560187697410583, cov = 0.024955550208687782
- 30%|███████████▉                            | 299/1000 [00:29<00:55, 12.56it/s]Step 300: loss = 8653.2627, train_acc = 35/94, 37.23%,  test_acc = 83/130, 63.85%, last_cov = 0.5560187697410583, cov = 0.01806044951081276
- 40%|███████████████▉                        | 399/1000 [00:37<00:48, 12.48it/s]Step 400: loss = 8638.1426, train_acc = 35/94, 37.23%,  test_acc = 83/130, 63.85%, last_cov = 0.5560187697410583, cov = 0.013134581968188286
- 50%|███████████████████▉                    | 499/1000 [00:45<00:40, 12.40it/s]Step 500: loss = 8623.3652, train_acc = 35/94, 37.23%,  test_acc = 83/130, 63.85%, last_cov = 0.5560187697410583, cov = 0.009598704054951668
- 50%|████████████████████                    | 501/1000 [00:46<00:47, 10.41it/s]Step 501: loss = 8623.3652, train_acc = 35/94, 37.23%,  test_acc = 83/130, 63.85%, last_cov = 0.5560187697410583, cov = 0.009598704054951668, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:46<00:46, 10.83it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 2978844.2500, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 1459.7830810546875
+ 10%|████                                     | 99/1000 [00:12<01:19, 11.33it/s]Step 100: loss = 2971427.7500, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 1800.1348876953125
+ 20%|███████▉                                | 199/1000 [00:20<01:09, 11.56it/s]Step 200: loss = 2958064.0000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 2627.426513671875
+ 30%|███████████▉                            | 299/1000 [00:29<01:01, 11.39it/s]Step 300: loss = 2945091.7500, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 3806.90087890625
+ 40%|███████████████▉                        | 399/1000 [00:38<00:51, 11.66it/s]Step 400: loss = 2932497.0000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 5485.3681640625
+ 50%|███████████████████▉                    | 499/1000 [00:47<00:44, 11.22it/s]Step 500: loss = 2920266.0000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 7844.16015625
+ 60%|███████████████████████▉                | 599/1000 [00:56<00:34, 11.51it/s]Step 600: loss = 2908386.5000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 11142.6015625
+ 70%|███████████████████████████▉            | 699/1000 [01:05<00:26, 11.35it/s]Step 700: loss = 2896845.5000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 15680.50390625
+ 80%|███████████████████████████████▉        | 799/1000 [01:13<00:17, 11.64it/s]Step 800: loss = 2885631.7500, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 21882.5625
+ 90%|███████████████████████████████████▉    | 899/1000 [01:22<00:08, 11.63it/s]Step 900: loss = 2874734.0000, train_acc = 33/94, 35.11%,  test_acc = 126/130, 96.92%, last_cov = 0.00032268319046124816, cov = 30294.19140625
+100%|███████████████████████████████████████| 1000/1000 [01:31<00:00, 10.96it/s]
 Number of Pseudo-Novel Samples: 20 / 80
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 2135.1694, train_acc = 19/24, 79.17%,  test_acc = 82/130, 63.08%, last_cov = 0.9917241930961609, cov = 0.041485149413347244
- 10%|████                                     | 99/1000 [00:11<01:12, 12.41it/s]Step 100: loss = 2132.4294, train_acc = 19/24, 79.17%,  test_acc = 83/130, 63.85%, last_cov = 0.9917241930961609, cov = 0.034651413559913635
- 20%|███████▉                                | 199/1000 [00:19<01:03, 12.63it/s]Step 200: loss = 2127.4612, train_acc = 19/24, 79.17%,  test_acc = 85/130, 65.38%, last_cov = 0.9917241930961609, cov = 0.02496298961341381
- 30%|███████████▉                            | 299/1000 [00:27<00:57, 12.29it/s]Step 300: loss = 2122.5986, train_acc = 20/24, 83.33%,  test_acc = 87/130, 66.92%, last_cov = 0.9917241930961609, cov = 0.018075017258524895
- 40%|███████████████▉                        | 399/1000 [00:35<00:48, 12.44it/s]Step 400: loss = 2117.8376, train_acc = 20/24, 83.33%,  test_acc = 88/130, 67.69%, last_cov = 0.9917241930961609, cov = 0.013154156506061554
- 50%|███████████████████▉                    | 499/1000 [00:43<00:40, 12.33it/s]Step 500: loss = 2113.1758, train_acc = 20/24, 83.33%,  test_acc = 88/130, 67.69%, last_cov = 0.9917241930961609, cov = 0.009621473960578442
- 50%|████████████████████                    | 501/1000 [00:43<00:48, 10.37it/s]Step 501: loss = 2113.1758, train_acc = 20/24, 83.33%,  test_acc = 88/130, 67.69%, last_cov = 0.9917241930961609, cov = 0.009621473960578442, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:43<00:43, 11.40it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 10975.7383, train_acc = 22/24, 91.67%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 1459.7830810546875
+ 10%|████                                     | 99/1000 [00:11<01:20, 11.25it/s]Step 100: loss = 10972.5137, train_acc = 22/24, 91.67%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 1800.3331298828125
+ 20%|███████▉                                | 199/1000 [00:20<01:09, 11.52it/s]Step 200: loss = 10966.6836, train_acc = 22/24, 91.67%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 2625.16015625
+ 30%|███████████▉                            | 299/1000 [00:29<01:02, 11.28it/s]Step 300: loss = 10961.0020, train_acc = 22/24, 91.67%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 3796.839599609375
+ 40%|███████████████▉                        | 399/1000 [00:38<00:53, 11.23it/s]Step 400: loss = 10955.4590, train_acc = 23/24, 95.83%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 5456.75439453125
+ 50%|███████████████████▉                    | 499/1000 [00:47<00:43, 11.52it/s]Step 500: loss = 10950.0527, train_acc = 23/24, 95.83%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 7778.1220703125
+ 50%|████████████████████                    | 501/1000 [00:47<00:52,  9.45it/s]Step 501: loss = 10950.0527, train_acc = 23/24, 95.83%,  test_acc = 126/130, 96.92%, last_cov = 9.495749473571777, cov = 7778.1220703125, early_stop_flag = True
+ 50%|████████████████████                    | 501/1000 [00:48<00:47, 10.43it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    98   |   403   | 24.317617866004962 |
-|   Old   |    10   |   273   | 3.663003663003663  |
-|   New   |    88   |   130   |  67.6923076923077  |
-|    S0   |    6    |   232   | 2.586206896551724  |
+|   All   |   126   |   403   | 31.265508684863523 |
+|   Old   |    0    |   273   |        0.0         |
+|   New   |   126   |   130   | 96.92307692307692  |
+|    S0   |    0    |   232   |        0.0         |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 3) ---
 Epoch 1/10 | Loss: 6.5856 | Ent_Inter: 0.6650 | Ent_Old: 1.3834 | Ent_New: 2.7162 | Contra: 0.9105
@@ -182,43 +185,45 @@ Epoch 8/10 | Loss: 2.1286 | Ent_Inter: 0.1381 | Ent_Old: 0.1978 | Ent_New: 0.139
 Epoch 9/10 | Loss: 2.1467 | Ent_Inter: 0.2940 | Ent_Old: 0.1481 | Ent_New: 0.0736 | Contra: 0.8155
 Epoch 10/10 | Loss: 2.1705 | Ent_Inter: 0.4022 | Ent_Old: 0.1199 | Ent_New: 0.0444 | Contra: 0.8020
 --- Re-extracting Features for VB Pipeline ---
-Capping PCA components: 128 → 89 (samples=90, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 89d (explained variance: 100.00%)
+Feature pipeline: 384 -> reused standardize -> reused PCA 99d
 Clustering novel classes: 1 Offset: 7
 label_offset 7
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
 Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7.]), array([10, 10, 10, 10, 10, 10, 10, 20]))
-Re-initialized global_params for 7 old + 1 novel classes (dim=89)
-Auto-enabled diagonal covariance (min samples/class=10, dim=89)
+Preserved old global_params; updated novel classes 7-7 (dim=99)
+Auto-enabled diagonal covariance (min samples/class=10, dim=99)
 HAPPY prototype replay added: 19 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11113.8730, train_acc = 37/109, 33.94%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.007913574576377869
- 10%|████                                    | 100/1000 [00:13<01:13, 12.28it/s]Step 100: loss = 11102.8818, train_acc = 37/109, 33.94%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.006453883834183216
- 20%|████████                                | 200/1000 [00:21<01:05, 12.28it/s]Step 200: loss = 11083.0020, train_acc = 38/109, 34.86%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.004450335167348385
- 30%|████████████                            | 300/1000 [00:30<00:58, 12.02it/s]Step 300: loss = 11063.6035, train_acc = 38/109, 34.86%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.0030860279221087694
- 40%|████████████████                        | 400/1000 [00:38<00:48, 12.49it/s]Step 400: loss = 11044.6602, train_acc = 40/109, 36.70%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.002152086701244116
- 50%|████████████████████                    | 500/1000 [00:46<00:40, 12.49it/s]Step 500: loss = 11026.1562, train_acc = 41/109, 37.61%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.0015092248795554042
-Step 501: loss = 11026.1562, train_acc = 41/109, 37.61%,  test_acc = 23/43, 53.49%, last_cov = 0.5891731977462769, cov = 0.0015092248795554042, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:46<00:46, 10.71it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12760146.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 1501.18017578125
+ 10%|████                                    | 100/1000 [00:12<01:20, 11.25it/s]Step 100: loss = 12729390.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 1838.7879638671875
+ 20%|████████                                | 200/1000 [00:20<01:06, 11.94it/s]Step 200: loss = 12673972.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 2665.727294921875
+ 30%|████████████                            | 300/1000 [00:29<00:59, 11.70it/s]Step 300: loss = 12620177.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 3842.1669921875
+ 40%|████████████████                        | 400/1000 [00:38<00:53, 11.12it/s]Step 400: loss = 12567948.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 5457.16064453125
+ 50%|████████████████████                    | 500/1000 [00:47<00:42, 11.79it/s]Step 500: loss = 12517226.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 7786.42724609375
+ 60%|████████████████████████                | 600/1000 [00:56<00:34, 11.43it/s]Step 600: loss = 12467962.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 10970.970703125
+ 70%|████████████████████████████            | 700/1000 [01:04<00:25, 11.56it/s]Step 700: loss = 12420100.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 15315.5712890625
+ 80%|████████████████████████████████        | 800/1000 [01:13<00:16, 11.90it/s]Step 800: loss = 12373594.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 21230.333984375
+ 90%|████████████████████████████████████    | 900/1000 [01:22<00:09, 11.06it/s]Step 900: loss = 12328399.0000, train_acc = 37/109, 33.94%,  test_acc = 42/43, 97.67%, last_cov = 0.00024378234229516238, cov = 29224.6640625
+100%|███████████████████████████████████████| 1000/1000 [01:31<00:00, 10.97it/s]
 Number of Pseudo-Novel Samples: 20 / 90
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 2295.6946, train_acc = 17/24, 70.83%,  test_acc = 23/43, 53.49%, last_cov = 0.4853612184524536, cov = 0.007913574576377869
- 10%|████                                    | 100/1000 [00:09<01:11, 12.53it/s]Step 100: loss = 2292.7542, train_acc = 17/24, 70.83%,  test_acc = 23/43, 53.49%, last_cov = 0.4853612184524536, cov = 0.0064539057202637196
- 20%|████████                                | 200/1000 [00:18<01:04, 12.41it/s]Step 200: loss = 2287.4214, train_acc = 17/24, 70.83%,  test_acc = 25/43, 58.14%, last_cov = 0.4853612184524536, cov = 0.004451939836144447
- 30%|████████████                            | 300/1000 [00:26<00:56, 12.41it/s]Step 300: loss = 2282.2002, train_acc = 17/24, 70.83%,  test_acc = 25/43, 58.14%, last_cov = 0.4853612184524536, cov = 0.0030891874339431524
- 40%|████████████████                        | 400/1000 [00:34<00:48, 12.36it/s]Step 400: loss = 2277.0864, train_acc = 17/24, 70.83%,  test_acc = 26/43, 60.47%, last_cov = 0.4853612184524536, cov = 0.0021562445908784866
- 50%|████████████████████                    | 500/1000 [00:42<00:39, 12.55it/s]Step 500: loss = 2272.0769, train_acc = 17/24, 70.83%,  test_acc = 26/43, 60.47%, last_cov = 0.4853612184524536, cov = 0.0015138377202674747
-Step 501: loss = 2272.0769, train_acc = 17/24, 70.83%,  test_acc = 26/43, 60.47%, last_cov = 0.4853612184524536, cov = 0.0015138377202674747, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:42<00:42, 11.71it/s]
-+---------+---------+---------+--------------------+
-| TestSet | Correct | Smaples |      Accuracy      |
-+---------+---------+---------+--------------------+
-|   All   |    38   |   446   |  8.52017937219731  |
-|   Old   |    12   |   403   | 2.977667493796526  |
-|   New   |    26   |    43   | 60.46511627906977  |
-|    S0   |    9    |   232   | 3.8793103448275863 |
-+---------+---------+---------+--------------------+
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12922.0273, train_acc = 23/24, 95.83%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 1501.18017578125
+ 10%|████                                     | 99/1000 [00:09<01:17, 11.62it/s]Step 100: loss = 12919.7734, train_acc = 23/24, 95.83%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 1840.7916259765625
+ 20%|███████▉                                | 199/1000 [00:18<01:09, 11.49it/s]Step 200: loss = 12915.6953, train_acc = 23/24, 95.83%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 2670.8701171875
+ 30%|███████████▉                            | 299/1000 [00:27<01:05, 10.62it/s]Step 300: loss = 12911.7236, train_acc = 23/24, 95.83%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 3854.300048828125
+ 40%|███████████████▉                        | 399/1000 [00:37<00:55, 10.92it/s]Step 400: loss = 12907.8408, train_acc = 24/24, 100.00%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 5497.65966796875
+ 50%|███████████████████▉                    | 499/1000 [00:45<00:43, 11.55it/s]Step 500: loss = 12904.0557, train_acc = 24/24, 100.00%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 7830.056640625
+ 50%|████████████████████                    | 501/1000 [00:46<00:52,  9.59it/s]Step 501: loss = 12904.0557, train_acc = 24/24, 100.00%,  test_acc = 42/43, 97.67%, last_cov = 1114.7735595703125, cov = 7830.056640625, early_stop_flag = True
+ 50%|████████████████████                    | 501/1000 [00:46<00:46, 10.79it/s]
++---------+---------+---------+---------------------+
+| TestSet | Correct | Smaples |       Accuracy      |
++---------+---------+---------+---------------------+
+|   All   |    43   |   446   |  9.641255605381167  |
+|   Old   |    1    |   403   | 0.24813895781637718 |
+|   New   |    42   |    43   |  97.67441860465117  |
+|    S0   |    0    |   232   |         0.0         |
++---------+---------+---------+---------------------+
 --- Starting Debiased Representation Learning (Stage 4) ---
 Epoch 1/10 | Loss: 7.5512 | Ent_Inter: 0.6850 | Ent_Old: 1.7587 | Ent_New: 3.4378 | Contra: 0.8349
 Epoch 2/10 | Loss: 7.4716 | Ent_Inter: 0.6836 | Ent_Old: 1.8450 | Ent_New: 3.3431 | Contra: 0.8000
@@ -231,48 +236,44 @@ Epoch 8/10 | Loss: 5.2639 | Ent_Inter: 0.5257 | Ent_Old: 1.5936 | Ent_New: 1.611
 Epoch 9/10 | Loss: 4.6475 | Ent_Inter: 0.4382 | Ent_Old: 1.4024 | Ent_New: 1.3260 | Contra: 0.7405
 Epoch 10/10 | Loss: 3.9602 | Ent_Inter: 0.3089 | Ent_Old: 1.2038 | Ent_New: 1.0244 | Contra: 0.7116
 --- Re-extracting Features for VB Pipeline ---
-Capping PCA components: 128 → 99 (samples=100, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 99d (explained variance: 100.00%)
+Feature pipeline: 384 -> reused standardize -> reused PCA 99d
 Clustering novel classes: 1 Offset: 8
 label_offset 8
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
 Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8.]), array([10, 10, 10, 10, 10, 10, 10, 10, 20]))
-Re-initialized global_params for 8 old + 1 novel classes (dim=99)
+Preserved old global_params; updated novel classes 8-8 (dim=99)
 Auto-enabled diagonal covariance (min samples/class=10, dim=99)
 HAPPY prototype replay added: 25 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 14286.9824, train_acc = 37/125, 29.60%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0036582383327186108
- 10%|████                                     | 99/1000 [00:11<01:11, 12.62it/s]Step 100: loss = 14273.0938, train_acc = 38/125, 30.40%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0029062165413051844
- 20%|███████▉                                | 199/1000 [00:19<01:04, 12.32it/s]Step 200: loss = 14247.9648, train_acc = 39/125, 31.20%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0019105956889688969
- 30%|███████████▉                            | 299/1000 [00:27<00:56, 12.42it/s]Step 300: loss = 14223.4355, train_acc = 40/125, 32.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0012641985667869449
- 40%|███████████████▉                        | 399/1000 [00:35<00:47, 12.55it/s]Step 400: loss = 14199.4727, train_acc = 40/125, 32.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0008418567595072091
- 50%|███████████████████▉                    | 499/1000 [00:43<00:40, 12.44it/s]Step 500: loss = 14176.0605, train_acc = 40/125, 32.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0005642151809297502
- 60%|███████████████████████▉                | 599/1000 [00:51<00:32, 12.40it/s]Step 600: loss = 14153.1777, train_acc = 41/125, 32.80%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.000380560610210523
- 70%|███████████████████████████▉            | 699/1000 [00:59<00:23, 12.69it/s]Step 700: loss = 14130.8066, train_acc = 40/125, 32.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.00025831011589616537
- 80%|███████████████████████████████▉        | 799/1000 [01:07<00:16, 12.50it/s]Step 800: loss = 14108.9307, train_acc = 42/125, 33.60%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0001764386979630217
- 90%|███████████████████████████████████▉    | 899/1000 [01:15<00:08, 12.60it/s]Step 900: loss = 14087.5352, train_acc = 43/125, 34.40%,  test_acc = 2/6, 33.33%, last_cov = 1.1689296960830688, cov = 0.0001212715869769454
-100%|███████████████████████████████████████| 1000/1000 [01:24<00:00, 11.89it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 23951080.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 11313.09765625
+ 10%|████                                    | 100/1000 [00:12<01:16, 11.81it/s]Step 100: loss = 23893962.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 14144.8388671875
+ 20%|████████                                | 200/1000 [00:20<01:08, 11.62it/s]Step 200: loss = 23791040.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 21206.29296875
+ 30%|████████████                            | 300/1000 [00:29<01:01, 11.41it/s]Step 300: loss = 23691126.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 31427.3984375
+ 40%|████████████████                        | 400/1000 [00:38<00:54, 11.04it/s]Step 400: loss = 23594114.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 46033.40234375
+ 50%|████████████████████                    | 500/1000 [00:47<00:42, 11.88it/s]Step 500: loss = 23499900.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 67183.875
+ 60%|████████████████████████                | 600/1000 [00:55<00:33, 12.09it/s]Step 600: loss = 23408388.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 97446.296875
+ 70%|████████████████████████████            | 700/1000 [01:04<00:25, 11.88it/s]Step 700: loss = 23319480.0000, train_acc = 41/125, 32.80%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 139691.921875
+ 80%|████████████████████████████████        | 800/1000 [01:13<00:17, 11.73it/s]Step 800: loss = 23233084.0000, train_acc = 40/125, 32.00%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 198834.046875
+ 90%|████████████████████████████████████    | 900/1000 [01:22<00:08, 11.93it/s]Step 900: loss = 23149118.0000, train_acc = 40/125, 32.00%,  test_acc = 6/6, 100.00%, last_cov = 0.00021404435392469168, cov = 280503.9375
+100%|███████████████████████████████████████| 1000/1000 [01:30<00:00, 11.00it/s]
 Number of Pseudo-Novel Samples: 20 / 100
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 2721.4014, train_acc = 14/25, 56.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0036582383327186108
- 10%|████                                    | 100/1000 [00:10<01:11, 12.57it/s]Step 100: loss = 2717.9238, train_acc = 15/25, 60.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0029063811525702477
- 20%|████████                                | 200/1000 [00:19<01:18, 10.16it/s]Step 200: loss = 2711.6201, train_acc = 15/25, 60.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0019114905735477805
- 30%|████████████                            | 300/1000 [00:27<00:56, 12.37it/s]Step 300: loss = 2705.4529, train_acc = 16/25, 64.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0012657776242122054
- 40%|████████████████                        | 400/1000 [00:35<00:48, 12.43it/s]Step 400: loss = 2699.4170, train_acc = 16/25, 64.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0008438316290266812
- 50%|████████████████████                    | 500/1000 [00:44<00:40, 12.34it/s]Step 500: loss = 2693.5083, train_acc = 17/25, 68.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0005663197371177375
- 60%|████████████████████████                | 600/1000 [00:52<00:32, 12.46it/s]Step 600: loss = 2687.7239, train_acc = 17/25, 68.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.00038258929271250963
- 70%|████████████████████████████            | 700/1000 [01:00<00:25, 11.63it/s]Step 700: loss = 2682.0598, train_acc = 18/25, 72.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.0002601653104647994
- 80%|████████████████████████████████        | 800/1000 [01:09<00:16, 12.18it/s]Step 800: loss = 2676.5122, train_acc = 18/25, 72.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.00017806519463192672
- 90%|████████████████████████████████████    | 900/1000 [01:17<00:08, 12.21it/s]Step 900: loss = 2671.0793, train_acc = 19/25, 76.00%,  test_acc = 2/6, 33.33%, last_cov = 1.1245930194854736, cov = 0.00012265067198313773
-100%|███████████████████████████████████████| 1000/1000 [01:25<00:00, 11.69it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 13456.1016, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 11313.09765625
+ 10%|████                                     | 99/1000 [00:11<01:18, 11.53it/s]Step 100: loss = 13454.2002, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 14201.5
+ 20%|███████▉                                | 199/1000 [00:20<01:11, 11.27it/s]Step 200: loss = 13450.7617, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 21442.458984375
+ 30%|███████████▉                            | 299/1000 [00:29<01:01, 11.42it/s]Step 300: loss = 13447.4082, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 32197.970703125
+ 40%|███████████████▉                        | 399/1000 [00:38<00:52, 11.38it/s]Step 400: loss = 13444.1289, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 47716.9375
+ 50%|███████████████████▉                    | 499/1000 [00:47<00:43, 11.54it/s]Step 500: loss = 13440.9287, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 69503.1953125
+ 50%|████████████████████                    | 501/1000 [00:47<00:51,  9.66it/s]Step 501: loss = 13440.9287, train_acc = 25/25, 100.00%,  test_acc = 6/6, 100.00%, last_cov = 1953.1544189453125, cov = 69503.1953125, early_stop_flag = True
+ 50%|████████████████████                    | 501/1000 [00:47<00:47, 10.46it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    21   |   452   | 4.646017699115045  |
-|   Old   |    19   |   446   | 4.260089686098655  |
-|   New   |    2    |    6    | 33.333333333333336 |
-|    S0   |    16   |   232   | 6.896551724137931  |
+|   All   |    7    |   452   | 1.5486725663716814 |
+|   Old   |    1    |   446   | 0.2242152466367713 |
+|   New   |    6    |    6    |       100.0        |
+|    S0   |    0    |   232   |        0.0         |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 5) ---
 Epoch 1/10 | Loss: 5.8392 | Ent_Inter: 0.6727 | Ent_Old: 0.9131 | Ent_New: 2.9038 | Contra: 0.6748
@@ -286,40 +287,42 @@ Epoch 8/10 | Loss: 3.4008 | Ent_Inter: 0.2533 | Ent_Old: 0.9344 | Ent_New: 0.916
 Epoch 9/10 | Loss: 2.8340 | Ent_Inter: 0.0702 | Ent_Old: 0.8867 | Ent_New: 0.5778 | Contra: 0.6496
 Epoch 10/10 | Loss: 2.4845 | Ent_Inter: 0.0006 | Ent_Old: 0.8522 | Ent_New: 0.3294 | Contra: 0.6512
 --- Re-extracting Features for VB Pipeline ---
-Capping PCA components: 128 → 104 (samples=105, raw_dim=384)
-Feature pipeline: 384 → standardize → PCA 104d (explained variance: 100.00%)
+Feature pipeline: 384 -> reused standardize -> reused PCA 99d
 Clustering novel classes: 1 Offset: 9
 label_offset 9
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
 Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.]), array([10, 10, 10, 10, 10, 10, 10, 10,  5, 20]))
-Re-initialized global_params for 9 old + 1 novel classes (dim=104)
-Auto-enabled diagonal covariance (min samples/class=5, dim=104)
+Preserved old global_params; updated novel classes 9-9 (dim=99)
+Auto-enabled diagonal covariance (min samples/class=5, dim=99)
 HAPPY prototype replay added: 31 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 16342.8857, train_acc = 36/136, 26.47%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.023374352604150772
- 10%|████                                     | 99/1000 [00:13<01:15, 11.93it/s]Step 100: loss = 16266.3926, train_acc = 38/136, 27.94%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.018351543694734573
- 20%|███████▉                                | 199/1000 [00:22<01:05, 12.15it/s]Step 200: loss = 16179.9395, train_acc = 43/136, 31.62%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.011830789968371391
- 30%|███████████▉                            | 299/1000 [00:30<00:56, 12.34it/s]Step 300: loss = 16160.8574, train_acc = 43/136, 31.62%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.0076506775803864
- 40%|███████████████▉                        | 399/1000 [00:38<00:48, 12.31it/s]Step 400: loss = 16256.8271, train_acc = 44/136, 32.35%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.005013495683670044
- 50%|███████████████████▉                    | 499/1000 [00:47<00:40, 12.41it/s]Step 500: loss = 16229.2891, train_acc = 44/136, 32.35%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.0032907791901379824
- 50%|████████████████████                    | 501/1000 [00:47<00:47, 10.45it/s]Step 501: loss = 16229.2891, train_acc = 44/136, 32.35%,  test_acc = 9/11, 81.82%, last_cov = 0.5800408720970154, cov = 0.0032907791901379824, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:47<00:47, 10.51it/s]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 33658648.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 19407940.0
+ 10%|████                                    | 100/1000 [00:13<01:22, 10.89it/s]Step 100: loss = 34695476.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 23594052.0
+ 20%|████████                                | 200/1000 [00:22<01:10, 11.28it/s]Step 200: loss = 33524832.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 34093844.0
+ 30%|████████████                            | 300/1000 [00:31<01:01, 11.30it/s]Step 300: loss = 32659714.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 48917260.0
+ 40%|████████████████                        | 400/1000 [00:40<00:55, 10.82it/s]Step 400: loss = 32361954.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 70216560.0
+ 50%|████████████████████                    | 500/1000 [00:49<00:43, 11.41it/s]Step 500: loss = 31449922.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 99418072.0
+ 60%|████████████████████████                | 600/1000 [00:58<00:37, 10.80it/s]Step 600: loss = 33783824.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 139381264.0
+ 70%|████████████████████████████            | 700/1000 [01:07<00:27, 10.88it/s]Step 700: loss = 29738252.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 191258000.0
+ 80%|████████████████████████████████        | 800/1000 [01:16<00:17, 11.61it/s]Step 800: loss = 33270736.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 259480288.0
+ 90%|████████████████████████████████████    | 900/1000 [01:25<00:08, 11.46it/s]Step 900: loss = 31947034.0000, train_acc = 45/136, 33.09%,  test_acc = 11/11, 100.00%, last_cov = 0.00021404435392469168, cov = 343814560.0
+100%|███████████████████████████████████████| 1000/1000 [01:34<00:00, 10.57it/s]
 Number of Pseudo-Novel Samples: 20 / 105
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 2864.5708, train_acc = 19/25, 76.00%,  test_acc = 9/11, 81.82%, last_cov = 0.4954259693622589, cov = 0.023374352604150772
- 10%|████                                     | 99/1000 [00:09<01:12, 12.46it/s]Step 100: loss = 2860.6414, train_acc = 19/25, 76.00%,  test_acc = 9/11, 81.82%, last_cov = 0.4954259693622589, cov = 0.018340948969125748
- 20%|███████▉                                | 199/1000 [00:17<01:04, 12.34it/s]Step 200: loss = 2853.5176, train_acc = 20/25, 80.00%,  test_acc = 10/11, 90.91%, last_cov = 0.4954259693622589, cov = 0.011794155463576317
- 30%|███████████▉                            | 299/1000 [00:26<00:56, 12.32it/s]Step 300: loss = 2846.5479, train_acc = 20/25, 80.00%,  test_acc = 10/11, 90.91%, last_cov = 0.4954259693622589, cov = 0.007639060262590647
- 40%|███████████████▉                        | 399/1000 [00:34<00:48, 12.41it/s]Step 400: loss = 2839.7261, train_acc = 21/25, 84.00%,  test_acc = 10/11, 90.91%, last_cov = 0.4954259693622589, cov = 0.004983141086995602
- 50%|███████████████████▉                    | 499/1000 [00:42<00:40, 12.39it/s]Step 500: loss = 2833.0479, train_acc = 21/25, 84.00%,  test_acc = 10/11, 90.91%, last_cov = 0.4954259693622589, cov = 0.003273735288530588
- 50%|████████████████████                    | 501/1000 [00:42<00:48, 10.35it/s]Step 501: loss = 2833.0479, train_acc = 21/25, 84.00%,  test_acc = 10/11, 90.91%, last_cov = 0.4954259693622589, cov = 0.003273735288530588, early_stop_flag = True
- 50%|████████████████████                    | 501/1000 [00:42<00:42, 11.66it/s]
-+---------+---------+---------+--------------------+
-| TestSet | Correct | Smaples |      Accuracy      |
-+---------+---------+---------+--------------------+
-|   All   |    13   |   463   | 2.8077753779697625 |
-|   Old   |    3    |   452   | 0.6637168141592921 |
-|   New   |    10   |    11   |  90.9090909090909  |
-|    S0   |    0    |   232   |        0.0         |
-+---------+---------+---------+--------------------+
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 15961.1748, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 19407940.0
+ 10%|████                                     | 99/1000 [00:09<01:19, 11.37it/s]Step 100: loss = 15959.6006, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 23950618.0
+ 20%|███████▉                                | 199/1000 [00:18<01:11, 11.16it/s]Step 200: loss = 15956.7598, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 35356572.0
+ 30%|███████████▉                            | 299/1000 [00:27<01:02, 11.25it/s]Step 300: loss = 15953.9814, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 51750756.0
+ 40%|███████████████▉                        | 399/1000 [00:36<00:53, 11.20it/s]Step 400: loss = 15951.2725, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 76026976.0
+ 50%|███████████████████▉                    | 499/1000 [00:45<00:43, 11.52it/s]Step 500: loss = 15948.6240, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 109538168.0
+ 50%|████████████████████                    | 501/1000 [00:45<00:51,  9.65it/s]Step 501: loss = 15948.6240, train_acc = 25/25, 100.00%,  test_acc = 11/11, 100.00%, last_cov = 8636.3642578125, cov = 109538168.0, early_stop_flag = True
+ 50%|████████████████████                    | 501/1000 [00:45<00:45, 10.93it/s]
++---------+---------+---------+-------------------+
+| TestSet | Correct | Smaples |      Accuracy     |
++---------+---------+---------+-------------------+
+|   All   |    11   |   463   | 2.375809935205184 |
+|   Old   |    0    |   452   |        0.0        |
+|   New   |    11   |    11   |       100.0       |
+|    S0   |    0    |   232   |        0.0        |
++---------+---------+---------+-------------------+

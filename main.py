@@ -338,6 +338,12 @@ if __name__ == '__main__':
     parser.add_argument("--scaling-factor", type=float, default=1.2, help="Scaling factor for learning from arbitary")
     parser.add_argument("--batch-size", type=int, default=128, help="Batch size")
     parser.add_argument("--early_stop_ratio", type=float, default=0, help="R in early stop")
+    parser.add_argument(
+        "--freeze_projector_after_base",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help="Keep the debiased feature space fixed after stage 0",
+    )
     args = parser.parse_args()
 
     # Set the random seed
@@ -404,7 +410,7 @@ if __name__ == '__main__':
                     epoch_loss += loss.item()
                     for k in epoch_dict.keys():
                         epoch_dict[k] += loss_dict.get(k, 0.0)
-                    
+
                 n_batches = len(stage_loader)
                 print(f"Epoch {epoch+1}/{representation_epochs} | Loss: {epoch_loss/n_batches:.4f} "
                       f"| Ent_Inter: {epoch_dict['loss_entropy_inter']/n_batches:.4f} "
@@ -474,41 +480,48 @@ if __name__ == '__main__':
             old_class_indices = list(range(args.base + (i-1)*args.increment))
             new_class_indices = list(range(args.base + (i-1)*args.increment, args.base + i*args.increment))
             
-            stage_dataset = ImageStageDataset(train_data, transform=dino_transform)
-            stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
+            if args.freeze_projector_after_base:
+                print(
+                    f"--- Skipping Debiased Representation Learning (Stage {i}); "
+                    "projector frozen after stage 0 ---"
+                )
+                projector.eval()
+            else:
+                stage_dataset = ImageStageDataset(train_data, transform=dino_transform)
+                stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
-            print(f"--- Starting Debiased Representation Learning (Stage {i}) ---")
-            projector.train()
-            representation_epochs = 10
+                print(f"--- Starting Debiased Representation Learning (Stage {i}) ---")
+                projector.train()
+                representation_epochs = 10
 
-            for epoch in range(representation_epochs):
-                epoch_loss = 0.0
-                epoch_dict = {'loss_entropy_inter': 0, 'loss_entropy_old_in': 0, 'loss_entropy_new_in': 0, 'loss_contrastive': 0}
-                
-                for images, static_feats, labels in stage_loader:
-                    images = images.to(device)
-                    with torch.no_grad():
-                        base_features = backbone(images).pooler_output
-                    z_u, logits = projector(base_features)
-                    loss, loss_dict = debiased_loss_fn(
-                        z_u=z_u, logits=logits,
-                        old_class_indices=old_class_indices,
-                        new_class_indices=new_class_indices,
-                        base_features=base_features
-                    )
-                    optimizer_proj.zero_grad()
-                    loss.backward()
-                    optimizer_proj.step()
-                    epoch_loss += loss.item()
-                    for k in epoch_dict.keys():
-                        epoch_dict[k] += loss_dict.get(k, 0.0)
+                for epoch in range(representation_epochs):
+                    epoch_loss = 0.0
+                    epoch_dict = {'loss_entropy_inter': 0, 'loss_entropy_old_in': 0, 'loss_entropy_new_in': 0, 'loss_contrastive': 0}
                     
-                n_batches = len(stage_loader)
-                print(f"Epoch {epoch+1}/{representation_epochs} | Loss: {epoch_loss/n_batches:.4f} "
-                      f"| Ent_Inter: {epoch_dict['loss_entropy_inter']/n_batches:.4f} "
-                      f"| Ent_Old: {epoch_dict['loss_entropy_old_in']/n_batches:.4f} "
-                      f"| Ent_New: {epoch_dict['loss_entropy_new_in']/n_batches:.4f} "
-                      f"| Contra: {epoch_dict['loss_contrastive']/n_batches:.4f}")
+                    for images, static_feats, labels in stage_loader:
+                        images = images.to(device)
+                        with torch.no_grad():
+                            base_features = backbone(images).pooler_output
+                        z_u, logits = projector(base_features)
+                        loss, loss_dict = debiased_loss_fn(
+                            z_u=z_u, logits=logits,
+                            old_class_indices=old_class_indices,
+                            new_class_indices=new_class_indices,
+                            base_features=base_features
+                        )
+                        optimizer_proj.zero_grad()
+                        loss.backward()
+                        optimizer_proj.step()
+                        epoch_loss += loss.item()
+                        for k in epoch_dict.keys():
+                            epoch_dict[k] += loss_dict.get(k, 0.0)
+
+                    n_batches = len(stage_loader)
+                    print(f"Epoch {epoch+1}/{representation_epochs} | Loss: {epoch_loss/n_batches:.4f} "
+                          f"| Ent_Inter: {epoch_dict['loss_entropy_inter']/n_batches:.4f} "
+                          f"| Ent_Old: {epoch_dict['loss_entropy_old_in']/n_batches:.4f} "
+                          f"| Ent_New: {epoch_dict['loss_entropy_new_in']/n_batches:.4f} "
+                          f"| Contra: {epoch_dict['loss_contrastive']/n_batches:.4f}")
 
             # Re-extract debiased features for ALL datasets
             print(f"--- Re-extracting Features for VB Pipeline ---")

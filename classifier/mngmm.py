@@ -292,8 +292,9 @@ class MNGMMClassifier():
             novel_features = raw_features[novel_idx]
             novel_labels = raw_labels[novel_idx]
     
+            replay_count = max(self.label_offset * 10, int(0.25 * len(raw_features)))
             replay_x, replay_y = self.sample_old_prototypes_happy(
-                n_samples=int(0.05 * len(raw_features)),
+                n_samples=replay_count,
                 temp=0.1
             )
     
