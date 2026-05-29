@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from PIL import ImageFilter, ImageOps, Image
 from torchvision import transforms
 
-from peft import LoraConfig, get_peft_model, BOFTConfig
+from peft import LoraConfig, get_peft_model
 from transformers import AutoModel
 from peft.peft_model import PeftModel
 from peft.config import PeftConfig
@@ -121,12 +121,12 @@ def load_model(num_classes, model_name):
     model = AutoModel.from_pretrained(model_name, use_safetensors=True)
 
 
-    peft_config = BOFTConfig(
-        boft_block_size=4,
-        boft_n_butterfly_factor=2,
-        target_modules=["output.dense", "mlp.fc1", "mlp.fc2"],
-        boft_dropout=0.1,
-        bias="boft_only",
+    peft_config = LoraConfig(
+        r=8,
+        lora_alpha=16,
+        target_modules=["query", "value"],
+        lora_dropout=0.1,
+        bias="none",
     )
 
     backbone = get_peft_model(model, peft_config)

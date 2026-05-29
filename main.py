@@ -8,6 +8,9 @@ import sys
 import time
 import argparse
 
+os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 import numpy as np
 
 import torch
@@ -96,7 +99,7 @@ def debias_dataset(backbone, projector, data_obj, batch_size, device):
     unconstrained Euclidean space — appropriate for MultivariateNormal.
     """
     ds = ImageStageDataset(data_obj, transform=dino_transform)
-    loader = DataLoader(ds, batch_size=batch_size, shuffle=False)
+    loader = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
     feats = []
     with torch.no_grad():
         for images, _, _ in loader:
@@ -111,8 +114,6 @@ class SimpleData:
     def __init__(self, x, y):
         self._x = x
         self._y = y
-
-os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
 # get the current time with a format yyyyMMdd-HHmm
 def get_current_time():
@@ -237,7 +238,7 @@ if __name__ == '__main__':
             
             # Setup Dataloader
             stage_dataset = ImageStageDataset(train_data, transform=dino_transform)
-            stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
+            stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
             # Initialize Models & Loss
             out_dim = args.base + i*args.increment 

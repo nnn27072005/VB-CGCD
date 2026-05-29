@@ -1,5 +1,6 @@
 # %%writefile /kaggle/working/VB-CGCD-main/classifier/mngmm.py
 import copy
+import os
 from collections import defaultdict
 from math import log
 
@@ -37,6 +38,7 @@ class MNGMMClassifier():
     def update_dir_infos(self, log_dir = "logs/", save_dir = "saved_models/"):
         self.writer = SummaryWriter(log_dir)
         self.save_dir = save_dir
+        os.makedirs(self.save_dir, exist_ok=True)
 
     def init_parameters(self, n_epochs, lr, log_dir, save_dir, batch_size, increment=10, base=50, scaling_factor=1.2, use_correct_scaling_factor=True, early_stop_ratio=0):
 
@@ -46,6 +48,7 @@ class MNGMMClassifier():
 
         self.batch_size = batch_size
         self.save_dir = save_dir
+        os.makedirs(self.save_dir, exist_ok=True)
 
         self.writer = SummaryWriter(log_dir)
 
@@ -64,6 +67,18 @@ class MNGMMClassifier():
             raise ValueError("MNGMMClassifier needs at least 1 training sample")
         return min(self.batch_size, n_samples)
 
+    def _stable_covariance(self, cov):
+        cov = 0.5 * (cov + jnp.swapaxes(cov, -1, -2))
+        eigvals, eigvecs = jnp.linalg.eigh(cov)
+        eigvals = jnp.clip(eigvals, 1e-4, 1e4)
+        return (eigvecs * eigvals[..., None, :]) @ jnp.swapaxes(eigvecs, -1, -2)
+
+    def _stable_covariance_np(self, cov):
+        cov = 0.5 * (cov + np.swapaxes(cov, -1, -2))
+        eigvals, eigvecs = np.linalg.eigh(cov)
+        eigvals = np.clip(eigvals, 1e-4, 1e4)
+        return (eigvecs * eigvals[..., None, :]) @ np.swapaxes(eigvecs, -1, -2)
+
     def model(self, X, y=None, num_classes=2, global_params=None, **kwargs):
         num_features = X.shape[1]
 
@@ -79,7 +94,11 @@ class MNGMMClassifier():
             y_batch = y[ind] if y is not None else None
             
             if y_batch is not None:
-                base_dist = dist.MultivariateNormal(class_means[y_batch], class_covs[y_batch])
+                stable_class_covs = self._stable_covariance(class_covs)
+                base_dist = dist.MultivariateNormal(
+                    class_means[y_batch],
+                    stable_class_covs[y_batch]
+                )
                 numpyro.sample("obs", base_dist, obs=X_batch)
 
                 # if self.global_params is not None:
@@ -236,15 +255,9 @@ class MNGMMClassifier():
             use_correct_scaling_factor=False
         )
     
-        pred_labels, _ = self._predict(
-            jnp.array(raw_features),
-            self.params,
-            happy_bias=True
-        )
-    
         if self.global_params is not None:
-            novel_idx = pred_labels >= self.label_offset
-            print(f"Number of Novel Samples: {novel_idx.sum()} / {len(raw_features)}")
+            novel_idx = raw_labels >= self.label_offset
+            print(f"Number of Pseudo-Novel Samples: {novel_idx.sum()} / {len(raw_features)}")
     
             novel_features = raw_features[novel_idx]
             novel_labels = raw_labels[novel_idx]
@@ -322,7 +335,7 @@ class MNGMMClassifier():
         eye = jnp.eye(class_covs.shape[-1])
     
         for i in range(class_means.shape[0]):
-            cov = class_covs[i] + 1e-4 * eye
+            cov = self._stable_covariance(class_covs[i] + 1e-4 * eye)
             mvn = dist.MultivariateNormal(class_means[i], cov)
             log_probs.append(mvn.log_prob(X))
     
@@ -367,7 +380,7 @@ class MNGMMClassifier():
         return jnp.sqrt((n) / (total + n))
 
     def calculate_metrics_on_covariances(self, params, increment, use_correct_scaling_factor):
-        class_covs = params["class_covs"]
+        class_covs = self._stable_covariance(params["class_covs"])
 
         early_stop_flag = False
 
@@ -375,7 +388,7 @@ class MNGMMClassifier():
             return early_stop_flag, [jnp.ones(1),
                                      jnp.ones(1)]
 
-        global_class_covs = self.global_params["class_covs"]
+        global_class_covs = self._stable_covariance(self.global_params["class_covs"])
 
         if not use_correct_scaling_factor:
             dets = [(jax.vmap(jnp.linalg.det)(global_class_covs[:self.num_base])).mean(), 
@@ -400,7 +413,7 @@ class MNGMMClassifier():
             return None, None
 
         means = np.array(self.global_params["class_means"][:self.label_offset])
-        covs = np.array(self.global_params["class_covs"][:self.label_offset])
+        covs = self._stable_covariance_np(np.array(self.global_params["class_covs"][:self.label_offset]))
 
         # hardness = mean cosine similarity to other class means
         norm_means = means / (np.linalg.norm(means, axis=1, keepdims=True) + 1e-8)
@@ -457,5 +470,5 @@ class MNGMMClassifier():
         print(t)
 
         # save the class means , covariances and supports to numpy files
-        save(f"{self.save_dir}class_means.npy", np.array(self.params["class_means"]))
-        save(f"{self.save_dir}class_covariances.npy", np.array(self.params["class_covs"]))
+        save(os.path.join(self.save_dir, "class_means.npy"), np.array(self.params["class_means"]))
+        save(os.path.join(self.save_dir, "class_covariances.npy"), np.array(self.params["class_covs"]))
