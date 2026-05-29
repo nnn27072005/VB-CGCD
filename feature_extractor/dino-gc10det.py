@@ -235,7 +235,8 @@ def save_image_paths(samples, output_dir, model_name, prefix):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DINO Inference on GC10-DET')
-    parser.add_argument('--raw_data_dir', required=True, type=str, help='Directory of the extracted Kaggle GC10-DET dataset')
+    parser.add_argument('--dataset_path', type=str, help='Directory of the extracted Kaggle GC10-DET dataset')
+    parser.add_argument('--raw_data_dir', type=str, help='Deprecated alias for --dataset_path')
     parser.add_argument('--device', default='cuda', type=str, help='Device on which to run')
     parser.add_argument('--num-workers', default=8, type=int, help='Number of dataloader workers')
     parser.add_argument('--batch-size', default=128, type=int, help='batch size')
@@ -247,10 +248,15 @@ if __name__ == '__main__':
     parser.add_argument("--test_ratio", default=0.2, type=float, help="Per-class test split ratio")
     args = parser.parse_args()
 
+    if args.dataset_path is None:
+        args.dataset_path = args.raw_data_dir
+    if args.dataset_path is None:
+        parser.error("one of --dataset_path or --raw_data_dir is required")
+
     if args.seed != 0:
         torch.manual_seed(args.seed)
 
-    samples, class_names = load_gc10det_samples(args.raw_data_dir)
+    samples, class_names = load_gc10det_samples(args.dataset_path)
     if len(class_names) != 10:
         print(f"Warning: expected 10 GC10-DET classes, discovered {len(class_names)}: {class_names}")
 

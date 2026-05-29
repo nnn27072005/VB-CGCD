@@ -4,7 +4,7 @@ python feature_extractor/dino-cifar100.py --finetuned --output_dir datasets/cifa
 python feature_extractor/dino-tinyimagenet.py --finetuned --output_dir datasets/tinyimagenet
 python feature_extractor/dino-imagenet100.py --finetuned --output_dir datasets/imagenet100
 python feature_extractor/dino-cub200.py --finetuned --output_dir datasets/cub200
-python feature_extractor/dino-gc10det.py --raw_data_dir datasets/raw/gc10det --finetuned --output_dir datasets/gc10det
+python feature_extractor/dino-gc10det.py --dataset_path datasets/raw/gc10det --finetuned --output_dir datasets/gc10det
 
 python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl --data_dir datasets/cifar100 --trail_name mix_increment_mngmm_dinovb16_sl_cifar_100
 python main.py --base 100 --increment 20 --pretrained_model_name dino-vitb16-sl --dataset tinyimagenet --data_dir datasets/tinyimagenet --num_classes 200 --trail_name mix_increment_mngmm_dinovb16_sl_tiny_imagenet

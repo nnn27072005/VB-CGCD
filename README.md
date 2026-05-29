@@ -38,7 +38,13 @@ For GC10-DET, download and extract the Kaggle dataset first:
 
 ```
 kaggle datasets download -d alex000kim/gc10det -p datasets/raw/gc10det --unzip
-python feature_extractor/dino-gc10det.py --raw_data_dir datasets/raw/gc10det --finetuned --output_dir datasets/gc10det
+python feature_extractor/dino-gc10det.py --dataset_path datasets/raw/gc10det --finetuned --output_dir datasets/gc10det
+```
+
+If you run from a Kaggle notebook or already have the dataset mounted, pass that extracted dataset folder directly:
+
+```
+python feature_extractor/dino-gc10det.py --dataset_path /kaggle/input/gc10det --finetuned --output_dir datasets/gc10det
 ```
 
 ## Training
