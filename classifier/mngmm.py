@@ -34,6 +34,11 @@ class MNGMMClassifier():
 
         self.with_early_stop = with_early_stop
 
+        # Diagonal covariance mode: enabled automatically when samples are too
+        # few relative to feature dimensionality.  This reduces parameters from
+        # O(d²) to O(d) and prevents ill-conditioned covariance matrices.
+        self._use_diagonal_cov = False
+
 
     def update_dir_infos(self, log_dir = "logs/", save_dir = "saved_models/"):
         self.writer = SummaryWriter(log_dir)
@@ -94,54 +99,60 @@ class MNGMMClassifier():
             y_batch = y[ind] if y is not None else None
             
             if y_batch is not None:
-                stable_class_covs = self._stable_covariance(class_covs)
-                base_dist = dist.MultivariateNormal(
-                    class_means[y_batch],
-                    stable_class_covs[y_batch]
-                )
+                if self._use_diagonal_cov:
+                    # Diagonal covariance: only use diagonal elements
+                    diag_vars = jnp.clip(jax.vmap(jnp.diag)(class_covs), 1e-4, 1e4)
+                    base_dist = dist.MultivariateNormal(
+                        class_means[y_batch],
+                        jax.vmap(jnp.diag)(diag_vars)[y_batch]
+                    )
+                else:
+                    stable_class_covs = self._stable_covariance(class_covs)
+                    base_dist = dist.MultivariateNormal(
+                        class_means[y_batch],
+                        stable_class_covs[y_batch]
+                    )
                 numpyro.sample("obs", base_dist, obs=X_batch)
-
-                # if self.global_params is not None:
-                #     log_probs = []
-                #     for i in range(num_classes):
-                #         mvn = dist.MultivariateNormal(class_means[i], class_covs[i])
-                #         log_probs.append(mvn.log_prob(X_batch))
-
-                #     log_probs = jnp.stack(log_probs, axis=-1)
-                #     probs = jax.nn.softmax(log_probs, axis=-1)
-
-                #     avg_probs = jnp.mean(probs, axis=0)
-
-                #     entropy_avg = -jnp.sum(avg_probs * jnp.log(avg_probs + 1e-8))
-
-                #     numpyro.factor("happy_entropy", -0.02 * entropy_avg) # Nếu New thấp thì -0.1 * entropy_avg, còn Old tụt thì -0.02 * entropy_avg
 
 
     def run_inference(self, X, y, test_X, test_y, log_prefix="", use_correct_scaling_factor=False):
         if X.shape[0] < 1:
             raise ValueError(f"No training samples available for {log_prefix or 'MNGMM inference'}")
 
+        # =====================================================================
+        # Gentler learning rate schedule to prevent NaN
+        # Old: init_lr → 10x warmup in 100 steps → exponential decay
+        # New: init_lr → 3x warmup in 200 steps → slower decay
+        # =====================================================================
         init_lr = self.init_lr
 
         scheduler = optax.join_schedules(
             schedules=[
-                optax.linear_schedule(init_value=init_lr, end_value=init_lr*10, transition_steps=100),
-                optax.exponential_decay(init_value=init_lr*10, transition_steps=500, decay_rate=0.85),
+                optax.linear_schedule(init_value=init_lr, end_value=init_lr*3, transition_steps=200),
+                optax.exponential_decay(init_value=init_lr*3, transition_steps=500, decay_rate=0.95),
             ],
-            boundaries=[100]
+            boundaries=[200]
         )
 
         self.guide = lambda *args, **kwargs: None
 
         print("Initializing model")
 
-        optimizer = numpyro.optim.optax_to_numpyro(optax.adam(scheduler))
+        # Add gradient clipping to prevent NaN from exploding gradients
+        optimizer = numpyro.optim.optax_to_numpyro(
+            optax.chain(
+                optax.clip_by_global_norm(1.0),
+                optax.adam(scheduler),
+            )
+        )
 
         self.svi = SVI(self.model, guide=self.guide, optim=optimizer, loss=Trace_ELBO())
 
         self.svi_state = self.svi.init(random.PRNGKey(0), X = X, y= y, num_classes=self.num_classes, global_params=self.global_params)
 
         last_state = None
+        nan_count = 0
+        max_nan_retries = 3  # Allow a few NaN steps before giving up
 
         for step in tqdm(range(self.num_steps)):
 
@@ -190,9 +201,14 @@ class MNGMMClassifier():
                       f" test_acc = {correct_test}/{total_test}, {acc_test:.2f}%, last_cov = {dets[0].item()}, cov = {dets[1].item()}")
 
             if jnp.isnan(loss):
-                print("Early stopping du to loss is NaN")
-                self.svi_state = last_state
-                break
+                nan_count += 1
+                print(f"NaN loss detected (attempt {nan_count}/{max_nan_retries})")
+                if last_state is not None:
+                    self.svi_state = last_state
+                if nan_count >= max_nan_retries:
+                    print("Early stopping due to repeated NaN loss")
+                    break
+                continue
 
             prev_loss = loss
 
@@ -232,6 +248,20 @@ class MNGMMClassifier():
         features, labels = self.pre_processing(features, labels)
         raw_features = features.copy()
         raw_labels = labels.copy()
+
+        # =====================================================================
+        # Auto-detect whether to use diagonal covariance
+        # Rule: if min samples per class < 2 * feature_dim, use diagonal
+        # =====================================================================
+        unique_labels, label_counts = np.unique(labels.astype(int), return_counts=True)
+        min_samples = label_counts.min() if len(label_counts) > 0 else 0
+        num_dim = features.shape[1]
+        
+        if min_samples < 2 * num_dim:
+            self._use_diagonal_cov = True
+            print(f"Auto-enabled diagonal covariance (min samples/class={min_samples}, dim={num_dim})")
+        else:
+            self._use_diagonal_cov = False
     
         if self.global_params is not None:
             progress = self.current_stage / (self.max_stage + 1e-8)
@@ -314,19 +344,6 @@ class MNGMMClassifier():
 
         return correct, len(test_features), 100. * correct / float(len(test_features))
 
-    # output the acc of training data
-    # def _predict(self, X, params):
-    #     class_means = params["class_means"]
-    #     class_covs = params["class_covs"]
-    #     log_probs = []
-
-    #     for i in range(class_means.shape[0]):
-    #         mvn = dist.MultivariateNormal(class_means[i], class_covs[i])
-    #         log_probs.append(mvn.log_prob(X))
-        
-    #     log_probs = jnp.stack(log_probs, axis=-1)
-    #     return jnp.argmax(log_probs, axis=-1), log_probs
-    
     def _predict(self, X, params, happy_bias=True):
         class_means = params["class_means"]
         class_covs = params["class_covs"]
@@ -335,7 +352,11 @@ class MNGMMClassifier():
         eye = jnp.eye(class_covs.shape[-1])
     
         for i in range(class_means.shape[0]):
-            cov = self._stable_covariance(class_covs[i] + 1e-4 * eye)
+            if self._use_diagonal_cov:
+                diag_var = jnp.clip(jnp.diag(class_covs[i]) + 1e-4, 1e-4, 1e4)
+                cov = jnp.diag(diag_var)
+            else:
+                cov = self._stable_covariance(class_covs[i] + 1e-4 * eye)
             mvn = dist.MultivariateNormal(class_means[i], cov)
             log_probs.append(mvn.log_prob(X))
     
@@ -433,10 +454,18 @@ class MNGMMClassifier():
 
         xs, ys = [], []
         for c in sampled_classes:
-            x = np.random.multivariate_normal(
-                means[c],
-                covs[c] + 1e-4 * np.eye(covs[c].shape[0])
-            )
+            if self._use_diagonal_cov:
+                # Sample from diagonal covariance
+                diag_var = np.clip(np.diag(covs[c]), 1e-4, 1e4)
+                x = np.random.multivariate_normal(
+                    means[c],
+                    np.diag(diag_var + 1e-4)
+                )
+            else:
+                x = np.random.multivariate_normal(
+                    means[c],
+                    covs[c] + 1e-4 * np.eye(covs[c].shape[0])
+                )
             xs.append(x)
             ys.append(c)
 

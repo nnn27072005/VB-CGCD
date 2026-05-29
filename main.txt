@@ -1,0 +1,216 @@
+!python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
+2026-05-29 07:22:51.023890: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1780039371.270976     317 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1780039371.337871     317 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1780039371.877254     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780039371.877301     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780039371.877305     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780039371.877309     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+scaling factor: 1.2
+Reducing PCA n_components from 128 to 99 for 100 samples and 768 features
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 25118.1387, train_acc = 20/100, 20.00%,  test_acc = 44/232, 18.97%, last_cov = 1.0, cov = 1.0
+  0%|                                        | 1/1000 [00:05<1:32:12,  5.54s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:05<1:35:32,  5.74s/it]
++---------+---------+---------+-------------------+
+| TestSet | Correct | Smaples |      Accuracy     |
++---------+---------+---------+-------------------+
+|   All   |    44   |   232   | 18.96551724137931 |
+|   Old   |    44   |   232   | 18.96551724137931 |
+|   New   |    44   |   232   | 18.96551724137931 |
+|    S0   |    44   |   232   | 18.96551724137931 |
++---------+---------+---------+-------------------+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+pytorch_model.bin: 100%|██████████████████████| 343M/343M [00:03<00:00, 100MB/s]
+Loading weights: 100%|█| 198/198 [00:00<00:00, 2815.83it/s, Materializing param=
+ViTModel LOAD REPORT from: facebook/dino-vitb16
+Key                 | Status  | 
+--------------------+---------+-
+pooler.dense.bias   | MISSING | 
+pooler.dense.weight | MISSING | 
+
+Notes:
+- MISSING	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
+/usr/local/lib/python3.12/dist-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+--- Starting Debiased Representation Learning (Stage 1) ---
+Epoch 1/10 | Loss: 1.0911 | Ent_Inter: 0.2443 | Ent_Old: 0.0745 | Ent_New: 0.0000 | Contra: 0.7724
+Epoch 2/10 | Loss: 3.0256 | Ent_Inter: 0.5571 | Ent_Old: 1.0284 | Ent_New: 0.0000 | Contra: 1.4401
+Epoch 3/10 | Loss: 2.1953 | Ent_Inter: 0.2997 | Ent_Old: 0.9657 | Ent_New: 0.0000 | Contra: 0.9300
+Epoch 4/10 | Loss: 2.1898 | Ent_Inter: 0.1106 | Ent_Old: 1.2920 | Ent_New: 0.0000 | Contra: 0.7872
+Epoch 5/10 | Loss: 1.4099 | Ent_Inter: 0.2490 | Ent_Old: 0.4672 | Ent_New: 0.0000 | Contra: 0.6937
+Epoch 6/10 | Loss: 1.0228 | Ent_Inter: 0.0562 | Ent_Old: 0.3598 | Ent_New: 0.0000 | Contra: 0.6068
+Epoch 7/10 | Loss: 1.5012 | Ent_Inter: 0.0014 | Ent_Old: 0.7918 | Ent_New: 0.0000 | Contra: 0.7080
+Epoch 8/10 | Loss: 0.8765 | Ent_Inter: 0.0057 | Ent_Old: 0.2462 | Ent_New: 0.0000 | Contra: 0.6246
+Epoch 9/10 | Loss: 0.7672 | Ent_Inter: 0.0129 | Ent_Old: 0.2106 | Ent_New: 0.0000 | Contra: 0.5437
+Epoch 10/10 | Loss: 0.6302 | Ent_Inter: 0.0249 | Ent_Old: 0.1213 | Ent_New: 0.0000 | Contra: 0.4840
+--- Re-extracting Features for VB Pipeline ---
+Clustering novel classes: 1 Offset: 5
+label_offset 5
+/usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5.]), array([ 4,  4,  4,  4,  4, 20]))
+Re-initialized global_params for 5 old classes in debiased space
+HAPPY prototype replay added: 5 samples
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 23608.8633, train_acc = 4/45, 8.89%,  test_acc = 0/41, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                        | 1/1000 [00:06<1:53:59,  6.85s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:07<1:58:21,  7.11s/it]
+Number of Pseudo-Novel Samples: 20 / 40
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12706.8525, train_acc = 0/22, 0.00%,  test_acc = 0/41, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:02<45:13,  2.72s/it]Early stopping du to loss is NaN
+  0%|                                          | 1/1000 [00:02<49:40,  2.98s/it]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    44   |   273   | 16.117216117216117 |
+|   Old   |    44   |   232   | 18.96551724137931  |
+|   New   |    0    |    41   |        0.0         |
+|    S0   |    44   |   232   | 18.96551724137931  |
++---------+---------+---------+--------------------+
+--- Starting Debiased Representation Learning (Stage 2) ---
+Epoch 1/10 | Loss: 1.9573 | Ent_Inter: 0.6221 | Ent_Old: 0.3119 | Ent_New: 0.0000 | Contra: 1.0233
+Epoch 2/10 | Loss: 1.8146 | Ent_Inter: 0.5873 | Ent_Old: 0.2832 | Ent_New: 0.0000 | Contra: 0.9441
+Epoch 3/10 | Loss: 1.5906 | Ent_Inter: 0.5124 | Ent_Old: 0.2249 | Ent_New: 0.0000 | Contra: 0.8533
+Epoch 4/10 | Loss: 1.3499 | Ent_Inter: 0.3740 | Ent_Old: 0.1359 | Ent_New: 0.0000 | Contra: 0.8399
+Epoch 5/10 | Loss: 1.0681 | Ent_Inter: 0.1476 | Ent_Old: 0.0573 | Ent_New: 0.0000 | Contra: 0.8632
+Epoch 6/10 | Loss: 0.9200 | Ent_Inter: 0.0084 | Ent_Old: 0.0275 | Ent_New: 0.0000 | Contra: 0.8841
+Epoch 7/10 | Loss: 0.9445 | Ent_Inter: 0.0261 | Ent_Old: 0.0109 | Ent_New: 0.0000 | Contra: 0.9075
+Epoch 8/10 | Loss: 0.9612 | Ent_Inter: 0.0615 | Ent_Old: 0.0188 | Ent_New: 0.0000 | Contra: 0.8808
+Epoch 9/10 | Loss: 0.8951 | Ent_Inter: 0.0457 | Ent_Old: 0.0309 | Ent_New: 0.0000 | Contra: 0.8186
+Epoch 10/10 | Loss: 0.8151 | Ent_Inter: 0.0184 | Ent_Old: 0.0216 | Ent_New: 0.0000 | Contra: 0.7751
+--- Re-extracting Features for VB Pipeline ---
+Clustering novel classes: 1 Offset: 6
+label_offset 6
+/usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6.]), array([ 4,  4,  4,  4,  4,  4, 20]))
+Re-initialized global_params for 6 old classes in debiased space
+HAPPY prototype replay added: 7 samples
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 26927.9648, train_acc = 4/51, 7.84%,  test_acc = 0/130, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                        | 1/1000 [00:03<1:02:18,  3.74s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:04<1:06:43,  4.01s/it]
+Number of Pseudo-Novel Samples: 20 / 44
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11870.6094, train_acc = 1/22, 4.55%,  test_acc = 0/130, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:00<13:48,  1.21it/s]Early stopping du to loss is NaN
+  0%|                                          | 1/1000 [00:01<18:14,  1.10s/it]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    44   |   403   | 10.918114143920596 |
+|   Old   |    44   |   273   | 16.117216117216117 |
+|   New   |    0    |   130   |        0.0         |
+|    S0   |    44   |   232   | 18.96551724137931  |
++---------+---------+---------+--------------------+
+--- Starting Debiased Representation Learning (Stage 3) ---
+Epoch 1/10 | Loss: 2.4709 | Ent_Inter: 0.6231 | Ent_Old: 0.6454 | Ent_New: 0.0000 | Contra: 1.2024
+Epoch 2/10 | Loss: 2.0326 | Ent_Inter: 0.6008 | Ent_Old: 0.3950 | Ent_New: 0.0000 | Contra: 1.0368
+Epoch 3/10 | Loss: 1.6600 | Ent_Inter: 0.5565 | Ent_Old: 0.2000 | Ent_New: 0.0000 | Contra: 0.9036
+Epoch 4/10 | Loss: 1.3374 | Ent_Inter: 0.4975 | Ent_Old: 0.1097 | Ent_New: 0.0000 | Contra: 0.7302
+Epoch 5/10 | Loss: 1.1404 | Ent_Inter: 0.3904 | Ent_Old: 0.1022 | Ent_New: 0.0000 | Contra: 0.6478
+Epoch 6/10 | Loss: 0.9867 | Ent_Inter: 0.2438 | Ent_Old: 0.1187 | Ent_New: 0.0000 | Contra: 0.6242
+Epoch 7/10 | Loss: 0.8232 | Ent_Inter: 0.1028 | Ent_Old: 0.1196 | Ent_New: 0.0000 | Contra: 0.6008
+Epoch 8/10 | Loss: 0.6946 | Ent_Inter: 0.0161 | Ent_Old: 0.1017 | Ent_New: 0.0000 | Contra: 0.5768
+Epoch 9/10 | Loss: 0.6478 | Ent_Inter: 0.0010 | Ent_Old: 0.0820 | Ent_New: 0.0000 | Contra: 0.5648
+Epoch 10/10 | Loss: 0.6406 | Ent_Inter: 0.0155 | Ent_Old: 0.0674 | Ent_New: 0.0000 | Contra: 0.5577
+--- Re-extracting Features for VB Pipeline ---
+Clustering novel classes: 1 Offset: 7
+label_offset 7
+/usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7.]), array([ 4,  4,  4,  4,  4,  4,  4, 20]))
+Re-initialized global_params for 7 old classes in debiased space
+HAPPY prototype replay added: 10 samples
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 30435.3691, train_acc = 5/58, 8.62%,  test_acc = 0/43, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                        | 1/1000 [00:03<1:02:06,  3.73s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:04<1:06:36,  4.00s/it]
+Number of Pseudo-Novel Samples: 20 / 48
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11973.7773, train_acc = 1/22, 4.55%,  test_acc = 0/43, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:00<13:50,  1.20it/s]Early stopping du to loss is NaN
+  0%|                                          | 1/1000 [00:01<18:14,  1.10s/it]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    44   |   446   | 9.865470852017937  |
+|   Old   |    44   |   403   | 10.918114143920596 |
+|   New   |    0    |    43   |        0.0         |
+|    S0   |    44   |   232   | 18.96551724137931  |
++---------+---------+---------+--------------------+
+--- Starting Debiased Representation Learning (Stage 4) ---
+Epoch 1/10 | Loss: 2.7016 | Ent_Inter: 0.6331 | Ent_Old: 0.7887 | Ent_New: 0.0000 | Contra: 1.2798
+Epoch 2/10 | Loss: 2.3712 | Ent_Inter: 0.6101 | Ent_Old: 0.5072 | Ent_New: 0.0000 | Contra: 1.2539
+Epoch 3/10 | Loss: 1.9399 | Ent_Inter: 0.5721 | Ent_Old: 0.1714 | Ent_New: 0.0000 | Contra: 1.1965
+Epoch 4/10 | Loss: 1.7623 | Ent_Inter: 0.5346 | Ent_Old: 0.1001 | Ent_New: 0.0000 | Contra: 1.1276
+Epoch 5/10 | Loss: 1.6695 | Ent_Inter: 0.4829 | Ent_Old: 0.1204 | Ent_New: 0.0000 | Contra: 1.0661
+Epoch 6/10 | Loss: 1.5158 | Ent_Inter: 0.3939 | Ent_Old: 0.1128 | Ent_New: 0.0000 | Contra: 1.0092
+Epoch 7/10 | Loss: 1.3089 | Ent_Inter: 0.2561 | Ent_Old: 0.1043 | Ent_New: 0.0000 | Contra: 0.9486
+Epoch 8/10 | Loss: 1.1148 | Ent_Inter: 0.1042 | Ent_Old: 0.1197 | Ent_New: 0.0000 | Contra: 0.8909
+Epoch 9/10 | Loss: 1.0266 | Ent_Inter: 0.0214 | Ent_Old: 0.1606 | Ent_New: 0.0000 | Contra: 0.8446
+Epoch 10/10 | Loss: 0.9827 | Ent_Inter: 0.0019 | Ent_Old: 0.1805 | Ent_New: 0.0000 | Contra: 0.8003
+--- Re-extracting Features for VB Pipeline ---
+Clustering novel classes: 1 Offset: 8
+label_offset 8
+/usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8.]), array([ 4,  4,  4,  4,  4,  4,  4,  4, 20]))
+Re-initialized global_params for 8 old classes in debiased space
+HAPPY prototype replay added: 13 samples
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 33684.7734, train_acc = 9/65, 13.85%,  test_acc = 0/6, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                        | 1/1000 [00:03<1:05:24,  3.93s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:04<1:10:32,  4.24s/it]
+Number of Pseudo-Novel Samples: 20 / 52
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11078.0752, train_acc = 0/22, 0.00%,  test_acc = 0/6, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:00<13:59,  1.19it/s]Early stopping du to loss is NaN
+  0%|                                          | 1/1000 [00:01<18:19,  1.10s/it]
++---------+---------+---------+-------------------+
+| TestSet | Correct | Smaples |      Accuracy     |
++---------+---------+---------+-------------------+
+|   All   |    44   |   452   | 9.734513274336283 |
+|   Old   |    44   |   446   | 9.865470852017937 |
+|   New   |    0    |    6    |        0.0        |
+|    S0   |    44   |   232   | 18.96551724137931 |
++---------+---------+---------+-------------------+
+--- Starting Debiased Representation Learning (Stage 5) ---
+Epoch 1/10 | Loss: 2.2238 | Ent_Inter: 0.6248 | Ent_Old: 0.5165 | Ent_New: 0.0000 | Contra: 1.0825
+Epoch 2/10 | Loss: 1.9926 | Ent_Inter: 0.6088 | Ent_Old: 0.4092 | Ent_New: 0.0000 | Contra: 0.9746
+Epoch 3/10 | Loss: 1.6108 | Ent_Inter: 0.5700 | Ent_Old: 0.2246 | Ent_New: 0.0000 | Contra: 0.8161
+Epoch 4/10 | Loss: 1.2646 | Ent_Inter: 0.4950 | Ent_Old: 0.0531 | Ent_New: 0.0000 | Contra: 0.7165
+Epoch 5/10 | Loss: 1.0697 | Ent_Inter: 0.3832 | Ent_Old: 0.0310 | Ent_New: 0.0000 | Contra: 0.6555
+Epoch 6/10 | Loss: 0.8954 | Ent_Inter: 0.2181 | Ent_Old: 0.0551 | Ent_New: 0.0000 | Contra: 0.6223
+Epoch 7/10 | Loss: 0.7458 | Ent_Inter: 0.0501 | Ent_Old: 0.0673 | Ent_New: 0.0000 | Contra: 0.6283
+Epoch 8/10 | Loss: 0.6851 | Ent_Inter: 0.0008 | Ent_Old: 0.0702 | Ent_New: 0.0000 | Contra: 0.6140
+Epoch 9/10 | Loss: 0.6253 | Ent_Inter: 0.0239 | Ent_Old: 0.0549 | Ent_New: 0.0000 | Contra: 0.5465
+Epoch 10/10 | Loss: 0.5594 | Ent_Inter: 0.0321 | Ent_Old: 0.0361 | Ent_New: 0.0000 | Contra: 0.4913
+--- Re-extracting Features for VB Pipeline ---
+Clustering novel classes: 1 Offset: 9
+label_offset 9
+/usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.]), array([ 4,  4,  4,  4,  4,  4,  4,  4,  4, 20]))
+Re-initialized global_params for 9 old classes in debiased space
+HAPPY prototype replay added: 16 samples
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 37999.5781, train_acc = 9/72, 12.50%,  test_acc = 0/11, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:03<56:53,  3.42s/it]Early stopping du to loss is NaN
+  0%|                                        | 1/1000 [00:03<1:02:18,  3.74s/it]
+Number of Pseudo-Novel Samples: 20 / 56
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12247.2734, train_acc = 1/22, 4.55%,  test_acc = 0/11, 0.00%, last_cov = 1.0, cov = 1.0
+  0%|                                          | 1/1000 [00:00<12:50,  1.30it/s]Early stopping du to loss is NaN
+  0%|                                          | 1/1000 [00:01<17:11,  1.03s/it]
++---------+---------+---------+-------------------+
+| TestSet | Correct | Smaples |      Accuracy     |
++---------+---------+---------+-------------------+
+|   All   |    44   |   463   | 9.503239740820735 |
+|   Old   |    44   |   452   | 9.734513274336283 |
+|   New   |    0    |    11   |        0.0        |
+|    S0   |    44   |   232   | 18.96551724137931 |
++---------+---------+---------+-------------------+

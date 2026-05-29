@@ -7,9 +7,11 @@ class Debiased_Representation_Loss(nn.Module):
     Debiased Representation Loss Module.
     Synergizes Soft Entropy Regularization (HAPPY-CGCD) and Soft Neighborhood Contrastive Loss (MetaGCD).
     """
-    def __init__(self, feature_dim, hidden_dim, epsilon=0.8, tau=0.1):
+    def __init__(self, feature_dim, hidden_dim, epsilon=0.6, tau=0.1):
         super(Debiased_Representation_Loss, self).__init__()
-        self.epsilon = epsilon
+        self.epsilon = epsilon  # Lowered from 0.8 to 0.6: with few samples, fewer
+                                # pairs exceed a 0.8 cosine threshold → contrastive
+                                # loss collapses to 0 and provides no gradient signal.
         self.tau = tau
         
         # Attention Module linear projections
@@ -34,39 +36,64 @@ class Debiased_Representation_Loss(nn.Module):
         device = z_u.device
         B, D = z_u.shape
         
+        num_old = len(old_class_indices)
+        num_new = len(new_class_indices)
+        
         # ---------------------------------------------------------
         # Part A: Soft Entropy Regularization (HAPPY-CGCD)
         # ---------------------------------------------------------
-        # Mask out future classes to prevent probability leakage!
         active_indices = old_class_indices + new_class_indices
-        # Temperature scaling: weight-normed logits are in [-1,1], so unscaled
-        # softmax over 60 classes is nearly uniform (entropy ≈ 0 always).
-        # Dividing by tau sharpens the distribution so entropy has gradients.
-        probs = F.softmax(logits[:, active_indices] / self.tau, dim=1)  # Shape: (B, len(active_indices))
         
-        # Compute marginal probabilities over the batch
-        mean_probs = probs.mean(dim=0)  # Shape: (len(active_indices),)
-        
-        # Probability mass for old and new class sets
-        num_old = len(old_class_indices)
-        p_old = mean_probs[:num_old].sum()  # Scalar
-        p_new = mean_probs[num_old:].sum()  # Scalar
-        
-        # Inter-set entropy loss
-        # Happy-CGCD minimizes the negative entropy (shifted) to maximize entropy
-        import math
-        loss_entropy_inter = p_old * torch.log(p_old + 1e-8) + p_new * torch.log(p_new + 1e-8) + math.log(2)
-        
-        # Intra-set normalizations and entropy calculations
-        # For old classes
-        p_old_in = mean_probs[:num_old] / (p_old + 1e-8)  # Shape: (C_old,)
-        loss_entropy_old_in = torch.sum(p_old_in * torch.log(p_old_in + 1e-8)) + math.log(p_old_in.size(0))
-        
-        # For new classes
-        p_new_in = mean_probs[num_old:] / (p_new + 1e-8)  # Shape: (C_new,)
-        if p_new_in.size(0) > 1:
-            loss_entropy_new_in = torch.sum(p_new_in * torch.log(p_new_in + 1e-8)) + math.log(p_new_in.size(0))
+        if len(active_indices) > 0:
+            # Temperature scaling: weight-normed logits are in [-1,1], so unscaled
+            # softmax over 60 classes is nearly uniform (entropy ≈ 0 always).
+            # Dividing by tau sharpens the distribution so entropy has gradients.
+            probs = F.softmax(logits[:, active_indices] / self.tau, dim=1)  # Shape: (B, len(active_indices))
+            
+            # Compute marginal probabilities over the batch
+            mean_probs = probs.mean(dim=0)  # Shape: (len(active_indices),)
         else:
+            # Edge case: no active classes (shouldn't happen in practice)
+            mean_probs = torch.ones(1, device=device)
+        
+        import math
+        
+        if num_old > 0 and num_new > 0:
+            # Standard inter-set entropy: encourage balanced old/new probability mass
+            p_old = mean_probs[:num_old].sum()
+            p_new = mean_probs[num_old:].sum()
+            
+            loss_entropy_inter = p_old * torch.log(p_old + 1e-8) + p_new * torch.log(p_new + 1e-8) + math.log(2)
+            
+            # Intra-set entropy for old classes
+            p_old_in = mean_probs[:num_old] / (p_old + 1e-8)
+            loss_entropy_old_in = torch.sum(p_old_in * torch.log(p_old_in + 1e-8)) + math.log(p_old_in.size(0))
+            
+            # Intra-set entropy for new classes
+            p_new_in = mean_probs[num_old:] / (p_new + 1e-8)
+            if p_new_in.size(0) > 1:
+                loss_entropy_new_in = torch.sum(p_new_in * torch.log(p_new_in + 1e-8)) + math.log(p_new_in.size(0))
+            else:
+                # increment=1: single new class → intra-entropy is trivially 0.
+                # Instead, add a term that encourages the model to assign non-trivial
+                # probability mass to the novel class (prevents it from being ignored).
+                loss_entropy_new_in = -0.5 * torch.log(p_new + 1e-8)
+        
+        elif num_old == 0 and num_new > 0:
+            # Stage 0: only new classes, no old. Just maximize intra-new entropy.
+            loss_entropy_inter = torch.tensor(0.0, device=device)
+            loss_entropy_old_in = torch.tensor(0.0, device=device)
+            
+            p_new_in = mean_probs / (mean_probs.sum() + 1e-8)
+            if p_new_in.size(0) > 1:
+                loss_entropy_new_in = torch.sum(p_new_in * torch.log(p_new_in + 1e-8)) + math.log(p_new_in.size(0))
+            else:
+                loss_entropy_new_in = torch.tensor(0.0, device=device)
+        
+        else:
+            # Fallback: no classes at all
+            loss_entropy_inter = torch.tensor(0.0, device=device)
+            loss_entropy_old_in = torch.tensor(0.0, device=device)
             loss_entropy_new_in = torch.tensor(0.0, device=device)
         
         # Total Soft Entropy Loss
@@ -130,7 +157,14 @@ class Debiased_Representation_Loss(nn.Module):
         # ---------------------------------------------------------
         # Final Composite Loss
         # ---------------------------------------------------------
-        total_loss = loss_entropy + loss_contrastive
+        # When increment is small (1-2 classes), the entropy terms provide less
+        # gradient signal.  Upweight the contrastive loss to compensate.
+        if num_new <= 2 and num_old > 0:
+            contrastive_weight = 2.0
+        else:
+            contrastive_weight = 1.0
+        
+        total_loss = loss_entropy + contrastive_weight * loss_contrastive
         
         loss_dict = {
             'loss_entropy_inter': loss_entropy_inter.item(),

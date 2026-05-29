@@ -27,7 +27,7 @@ class GC10DETLoader():
 
         num_labeled = base * samples_per_class
         num_novel_inc = samples_per_class
-        num_known_inc = max(1, int(samples_per_class * 0.2))
+        num_known_inc = max(1, int(samples_per_class * 0.5))
 
         loader = dataloader.StrictPerClassIncrementalLoader(
             data_dir=self.args.data_dir,
