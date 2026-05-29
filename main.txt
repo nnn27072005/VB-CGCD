@@ -1,216 +1,279 @@
-!python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
-2026-05-29 07:22:51.023890: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+!python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 384 --trail_name fix_v1_gc10det
+2026-05-29 08:00:43.061604: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-E0000 00:00:1780039371.270976     317 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
-E0000 00:00:1780039371.337871     317 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
-W0000 00:00:1780039371.877254     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780039371.877301     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780039371.877305     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1780039371.877309     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+E0000 00:00:1780041643.266264     317 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1780041643.327064     317 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1780041643.853734     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780041643.853775     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780041643.853780     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1780041643.853783     317 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
 scaling factor: 1.2
-Reducing PCA n_components from 128 to 99 for 100 samples and 768 features
-Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 25118.1387, train_acc = 20/100, 20.00%,  test_acc = 44/232, 18.97%, last_cov = 1.0, cov = 1.0
-  0%|                                        | 1/1000 [00:05<1:32:12,  5.54s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:05<1:35:32,  5.74s/it]
-+---------+---------+---------+-------------------+
-| TestSet | Correct | Smaples |      Accuracy     |
-+---------+---------+---------+-------------------+
-|   All   |    44   |   232   | 18.96551724137931 |
-|   Old   |    44   |   232   | 18.96551724137931 |
-|   New   |    44   |   232   | 18.96551724137931 |
-|    S0   |    44   |   232   | 18.96551724137931 |
-+---------+---------+---------+-------------------+
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-pytorch_model.bin: 100%|██████████████████████| 343M/343M [00:03<00:00, 100MB/s]
-Loading weights: 100%|█| 198/198 [00:00<00:00, 2815.83it/s, Materializing param=
+pytorch_model.bin: 100%|█████████████████████| 343M/343M [00:05<00:00, 68.3MB/s]
+Loading weights: 100%|█| 198/198 [00:00<00:00, 3638.91it/s, Materializing param=
 ViTModel LOAD REPORT from: facebook/dino-vitb16
 Key                 | Status  | 
 --------------------+---------+-
-pooler.dense.bias   | MISSING | 
 pooler.dense.weight | MISSING | 
+pooler.dense.bias   | MISSING | 
 
 Notes:
 - MISSING	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
 /usr/local/lib/python3.12/dist-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
   WeightNorm.apply(module, name, dim)
+--- Starting Debiased Representation Learning (Stage 0) ---
+Epoch 1/10 | Loss: 0.4973 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.0633 | Contra: 0.4340
+Epoch 2/10 | Loss: 1.9344 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 1.3700 | Contra: 0.5644
+Epoch 3/10 | Loss: 1.7485 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 1.1808 | Contra: 0.5677
+Epoch 4/10 | Loss: 2.1213 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 1.5514 | Contra: 0.5699
+Epoch 5/10 | Loss: 2.1350 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 1.5908 | Contra: 0.5442
+Epoch 6/10 | Loss: 1.9740 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 1.4888 | Contra: 0.4852
+Epoch 7/10 | Loss: 1.4260 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.9738 | Contra: 0.4522
+Epoch 8/10 | Loss: 1.2148 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.7128 | Contra: 0.5020
+Epoch 9/10 | Loss: 1.3498 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.7928 | Contra: 0.5570
+Epoch 10/10 | Loss: 0.9811 | Ent_Inter: 0.0000 | Ent_Old: 0.0000 | Ent_New: 0.3892 | Contra: 0.5919
+--- Re-extracting Features for VB Pipeline (Stage 0) ---
+Auto-enabled diagonal covariance (min samples/class=20, dim=384)
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 53974.2578, train_acc = 26/100, 26.00%,  test_acc = 53/232, 22.84%, last_cov = 0.0011289219837635756, cov = 0.0011097575770691037
+ 10%|████                                    | 100/1000 [00:21<02:11,  6.86it/s]Step 100: loss = 53972.0312, train_acc = 26/100, 26.00%,  test_acc = 53/232, 22.84%, last_cov = 0.0011289219837635756, cov = 0.0009301843238063157
+ 20%|████████                                | 200/1000 [00:35<01:53,  7.03it/s]Step 200: loss = 53968.3359, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = 0.0011289219837635756, cov = 0.0006926727364771068
+ 30%|████████████                            | 300/1000 [00:49<01:39,  7.05it/s]Step 300: loss = 53963.9453, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = 0.0011289219837635756, cov = 0.0004866193630732596
+ 33%|█████████████▎                          | 334/1000 [00:54<01:33,  7.10it/s]Step 334: loss = 53962.5156, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = 0.0011289219837635756, cov = 0.0004333911929279566, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:54<01:49,  6.09it/s]
+Number of Pseudo-Novel Samples: 100 / 100
+Initializing model
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 53974.2578, train_acc = 26/100, 26.00%,  test_acc = 53/232, 22.84%, last_cov = nan, cov = 0.0011097575770691037
+ 10%|████                                    | 100/1000 [00:13<01:59,  7.54it/s]Step 100: loss = 53972.0312, train_acc = 26/100, 26.00%,  test_acc = 53/232, 22.84%, last_cov = nan, cov = 0.0009301843238063157
+ 20%|████████                                | 200/1000 [00:26<01:46,  7.54it/s]Step 200: loss = 53968.3398, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = nan, cov = 0.0006926945643499494
+ 30%|████████████                            | 300/1000 [00:40<01:34,  7.42it/s]Step 300: loss = 53963.9453, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = nan, cov = 0.00048660938045941293
+ 40%|████████████████                        | 400/1000 [00:54<01:20,  7.45it/s]Step 400: loss = 53959.6250, train_acc = 26/100, 26.00%,  test_acc = 52/232, 22.41%, last_cov = nan, cov = 0.00034297932870686054
+ 50%|████████████████████                    | 500/1000 [01:07<01:06,  7.49it/s]Step 500: loss = 53955.3828, train_acc = 27/100, 27.00%,  test_acc = 52/232, 22.41%, last_cov = nan, cov = 0.00024252709408756346
+ 60%|████████████████████████                | 600/1000 [01:21<00:54,  7.38it/s]Step 600: loss = 53951.2031, train_acc = 27/100, 27.00%,  test_acc = 51/232, 21.98%, last_cov = nan, cov = 0.00017204915639013052
+ 70%|████████████████████████████            | 700/1000 [01:35<00:40,  7.42it/s]Step 700: loss = 53947.0938, train_acc = 28/100, 28.00%,  test_acc = 51/232, 21.98%, last_cov = nan, cov = 0.00012244662502780557
+ 80%|████████████████████████████████        | 800/1000 [01:49<00:28,  7.06it/s]Step 800: loss = 53943.0469, train_acc = 28/100, 28.00%,  test_acc = 51/232, 21.98%, last_cov = nan, cov = 8.742557838559151e-05
+ 90%|████████████████████████████████████    | 900/1000 [02:03<00:14,  7.02it/s]Step 900: loss = 53939.0742, train_acc = 29/100, 29.00%,  test_acc = 50/232, 21.55%, last_cov = nan, cov = 6.262131500989199e-05
+100%|███████████████████████████████████████| 1000/1000 [02:17<00:00,  7.27it/s]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    50   |   232   | 21.551724137931036 |
+|   Old   |    50   |   232   | 21.551724137931036 |
+|   New   |    50   |   232   | 21.551724137931036 |
+|    S0   |    50   |   232   | 21.551724137931036 |
++---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 1) ---
-Epoch 1/10 | Loss: 1.0911 | Ent_Inter: 0.2443 | Ent_Old: 0.0745 | Ent_New: 0.0000 | Contra: 0.7724
-Epoch 2/10 | Loss: 3.0256 | Ent_Inter: 0.5571 | Ent_Old: 1.0284 | Ent_New: 0.0000 | Contra: 1.4401
-Epoch 3/10 | Loss: 2.1953 | Ent_Inter: 0.2997 | Ent_Old: 0.9657 | Ent_New: 0.0000 | Contra: 0.9300
-Epoch 4/10 | Loss: 2.1898 | Ent_Inter: 0.1106 | Ent_Old: 1.2920 | Ent_New: 0.0000 | Contra: 0.7872
-Epoch 5/10 | Loss: 1.4099 | Ent_Inter: 0.2490 | Ent_Old: 0.4672 | Ent_New: 0.0000 | Contra: 0.6937
-Epoch 6/10 | Loss: 1.0228 | Ent_Inter: 0.0562 | Ent_Old: 0.3598 | Ent_New: 0.0000 | Contra: 0.6068
-Epoch 7/10 | Loss: 1.5012 | Ent_Inter: 0.0014 | Ent_Old: 0.7918 | Ent_New: 0.0000 | Contra: 0.7080
-Epoch 8/10 | Loss: 0.8765 | Ent_Inter: 0.0057 | Ent_Old: 0.2462 | Ent_New: 0.0000 | Contra: 0.6246
-Epoch 9/10 | Loss: 0.7672 | Ent_Inter: 0.0129 | Ent_Old: 0.2106 | Ent_New: 0.0000 | Contra: 0.5437
-Epoch 10/10 | Loss: 0.6302 | Ent_Inter: 0.0249 | Ent_Old: 0.1213 | Ent_New: 0.0000 | Contra: 0.4840
+Epoch 1/10 | Loss: 5.1710 | Ent_Inter: 0.6514 | Ent_Old: 0.4151 | Ent_New: 2.4802 | Contra: 0.8122
+Epoch 2/10 | Loss: 3.5461 | Ent_Inter: 0.3740 | Ent_Old: 0.7684 | Ent_New: 1.1649 | Contra: 0.6194
+Epoch 3/10 | Loss: 2.5343 | Ent_Inter: 0.0392 | Ent_Old: 0.8093 | Ent_New: 0.5095 | Contra: 0.5882
+Epoch 4/10 | Loss: 1.8177 | Ent_Inter: 0.3470 | Ent_Old: 0.3359 | Ent_New: 0.0582 | Contra: 0.5383
+Epoch 5/10 | Loss: 1.9293 | Ent_Inter: 0.5116 | Ent_Old: 0.3695 | Ent_New: 0.0227 | Contra: 0.5127
+Epoch 6/10 | Loss: 1.7644 | Ent_Inter: 0.5887 | Ent_Old: 0.1505 | Ent_New: 0.0110 | Contra: 0.5071
+Epoch 7/10 | Loss: 1.7760 | Ent_Inter: 0.6077 | Ent_Old: 0.1355 | Ent_New: 0.0085 | Contra: 0.5121
+Epoch 8/10 | Loss: 1.7968 | Ent_Inter: 0.6105 | Ent_Old: 0.1328 | Ent_New: 0.0081 | Contra: 0.5227
+Epoch 9/10 | Loss: 1.7875 | Ent_Inter: 0.6031 | Ent_Old: 0.1309 | Ent_New: 0.0091 | Contra: 0.5222
+Epoch 10/10 | Loss: 1.6782 | Ent_Inter: 0.5916 | Ent_Old: 0.0427 | Ent_New: 0.0106 | Contra: 0.5167
 --- Re-extracting Features for VB Pipeline ---
 Clustering novel classes: 1 Offset: 5
 label_offset 5
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
-Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5.]), array([ 4,  4,  4,  4,  4, 20]))
-Re-initialized global_params for 5 old classes in debiased space
-HAPPY prototype replay added: 5 samples
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5.]), array([10, 10, 10, 10, 10, 20]))
+Re-initialized global_params for 5 old + 1 novel classes in debiased space
+Auto-enabled diagonal covariance (min samples/class=10, dim=384)
+HAPPY prototype replay added: 9 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 23608.8633, train_acc = 4/45, 8.89%,  test_acc = 0/41, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                        | 1/1000 [00:06<1:53:59,  6.85s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:07<1:58:21,  7.11s/it]
-Number of Pseudo-Novel Samples: 20 / 40
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 42295.4219, train_acc = 29/79, 36.71%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0010485172970220447
+ 10%|████                                    | 100/1000 [00:17<02:06,  7.13it/s]Step 100: loss = 42290.2969, train_acc = 29/79, 36.71%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0008737660828046501
+ 20%|████████                                | 200/1000 [00:31<02:57,  4.50it/s]Step 200: loss = 42281.7734, train_acc = 29/79, 36.71%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0006440446013584733
+ 30%|████████████                            | 300/1000 [00:45<01:34,  7.44it/s]Step 300: loss = 42271.6094, train_acc = 29/79, 36.71%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0004465915262699127
+ 33%|█████████████▎                          | 334/1000 [00:49<01:30,  7.37it/s]Step 334: loss = 42268.2891, train_acc = 29/79, 36.71%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.00039597900467924774, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:50<01:40,  6.65it/s]
+Number of Pseudo-Novel Samples: 20 / 70
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12706.8525, train_acc = 0/22, 0.00%,  test_acc = 0/41, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:02<45:13,  2.72s/it]Early stopping du to loss is NaN
-  0%|                                          | 1/1000 [00:02<49:40,  2.98s/it]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11276.6758, train_acc = 10/23, 43.48%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0010485172970220447
+ 10%|████                                    | 100/1000 [00:14<01:52,  7.99it/s]Step 100: loss = 11275.1670, train_acc = 10/23, 43.48%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0008738022879697382
+ 20%|████████                                | 200/1000 [00:27<01:42,  7.78it/s]Step 200: loss = 11272.6533, train_acc = 10/23, 43.48%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0006442310404963791
+ 30%|████████████                            | 300/1000 [00:40<01:28,  7.93it/s]Step 300: loss = 11269.6533, train_acc = 10/23, 43.48%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0004469982231967151
+ 33%|█████████████▎                          | 334/1000 [00:44<01:23,  7.94it/s]Step 334: loss = 11268.6709, train_acc = 10/23, 43.48%,  test_acc = 15/41, 36.59%, last_cov = 0.10028364509344101, cov = 0.0003964932984672487, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:45<01:29,  7.40it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    44   |   273   | 16.117216117216117 |
-|   Old   |    44   |   232   | 18.96551724137931  |
-|   New   |    0    |    41   |        0.0         |
-|    S0   |    44   |   232   | 18.96551724137931  |
+|   All   |    34   |   273   | 12.454212454212454 |
+|   Old   |    19   |   232   | 8.189655172413794  |
+|   New   |    15   |    41   | 36.58536585365854  |
+|    S0   |    19   |   232   | 8.189655172413794  |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 2) ---
-Epoch 1/10 | Loss: 1.9573 | Ent_Inter: 0.6221 | Ent_Old: 0.3119 | Ent_New: 0.0000 | Contra: 1.0233
-Epoch 2/10 | Loss: 1.8146 | Ent_Inter: 0.5873 | Ent_Old: 0.2832 | Ent_New: 0.0000 | Contra: 0.9441
-Epoch 3/10 | Loss: 1.5906 | Ent_Inter: 0.5124 | Ent_Old: 0.2249 | Ent_New: 0.0000 | Contra: 0.8533
-Epoch 4/10 | Loss: 1.3499 | Ent_Inter: 0.3740 | Ent_Old: 0.1359 | Ent_New: 0.0000 | Contra: 0.8399
-Epoch 5/10 | Loss: 1.0681 | Ent_Inter: 0.1476 | Ent_Old: 0.0573 | Ent_New: 0.0000 | Contra: 0.8632
-Epoch 6/10 | Loss: 0.9200 | Ent_Inter: 0.0084 | Ent_Old: 0.0275 | Ent_New: 0.0000 | Contra: 0.8841
-Epoch 7/10 | Loss: 0.9445 | Ent_Inter: 0.0261 | Ent_Old: 0.0109 | Ent_New: 0.0000 | Contra: 0.9075
-Epoch 8/10 | Loss: 0.9612 | Ent_Inter: 0.0615 | Ent_Old: 0.0188 | Ent_New: 0.0000 | Contra: 0.8808
-Epoch 9/10 | Loss: 0.8951 | Ent_Inter: 0.0457 | Ent_Old: 0.0309 | Ent_New: 0.0000 | Contra: 0.8186
-Epoch 10/10 | Loss: 0.8151 | Ent_Inter: 0.0184 | Ent_Old: 0.0216 | Ent_New: 0.0000 | Contra: 0.7751
+Epoch 1/10 | Loss: 6.3484 | Ent_Inter: 0.6765 | Ent_Old: 1.6320 | Ent_New: 3.0249 | Contra: 0.5075
+Epoch 2/10 | Loss: 5.6741 | Ent_Inter: 0.6523 | Ent_Old: 1.5103 | Ent_New: 2.4934 | Contra: 0.5090
+Epoch 3/10 | Loss: 4.5268 | Ent_Inter: 0.5521 | Ent_Old: 1.2245 | Ent_New: 1.7237 | Contra: 0.5132
+Epoch 4/10 | Loss: 3.0771 | Ent_Inter: 0.2782 | Ent_Old: 0.7895 | Ent_New: 0.9635 | Contra: 0.5230
+Epoch 5/10 | Loss: 1.8702 | Ent_Inter: 0.0057 | Ent_Old: 0.3790 | Ent_New: 0.4029 | Contra: 0.5413
+Epoch 6/10 | Loss: 1.5540 | Ent_Inter: 0.1074 | Ent_Old: 0.1629 | Ent_New: 0.1591 | Contra: 0.5623
+Epoch 7/10 | Loss: 1.5652 | Ent_Inter: 0.2699 | Ent_Old: 0.0554 | Ent_New: 0.0814 | Contra: 0.5792
+Epoch 8/10 | Loss: 1.6480 | Ent_Inter: 0.3529 | Ent_Old: 0.0579 | Ent_New: 0.0566 | Contra: 0.5903
+Epoch 9/10 | Loss: 1.7344 | Ent_Inter: 0.3817 | Ent_Old: 0.1119 | Ent_New: 0.0493 | Contra: 0.5957
+Epoch 10/10 | Loss: 1.7573 | Ent_Inter: 0.3540 | Ent_Old: 0.1506 | Ent_New: 0.0563 | Contra: 0.5982
 --- Re-extracting Features for VB Pipeline ---
 Clustering novel classes: 1 Offset: 6
 label_offset 6
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
-Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6.]), array([ 4,  4,  4,  4,  4,  4, 20]))
-Re-initialized global_params for 6 old classes in debiased space
-HAPPY prototype replay added: 7 samples
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6.]), array([10, 10, 10, 10, 10, 10, 20]))
+Re-initialized global_params for 6 old + 1 novel classes in debiased space
+Auto-enabled diagonal covariance (min samples/class=10, dim=384)
+HAPPY prototype replay added: 14 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 26927.9648, train_acc = 4/51, 7.84%,  test_acc = 0/130, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                        | 1/1000 [00:03<1:02:18,  3.74s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:04<1:06:43,  4.01s/it]
-Number of Pseudo-Novel Samples: 20 / 44
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 49367.9531, train_acc = 32/94, 34.04%,  test_acc = 0/130, 0.00%, last_cov = 0.045071426779031754, cov = 0.001172384712845087
+ 10%|████                                    | 100/1000 [00:17<02:06,  7.09it/s]Step 100: loss = 49362.8711, train_acc = 32/94, 34.04%,  test_acc = 0/130, 0.00%, last_cov = 0.045071426779031754, cov = 0.0009616331662982702
+ 20%|████████                                | 200/1000 [00:31<01:51,  7.16it/s]Step 200: loss = 49354.4375, train_acc = 32/94, 34.04%,  test_acc = 0/130, 0.00%, last_cov = 0.045071426779031754, cov = 0.0006915467092767358
+ 30%|████████████                            | 300/1000 [00:45<01:39,  7.06it/s]Step 300: loss = 49344.4062, train_acc = 33/94, 35.11%,  test_acc = 0/130, 0.00%, last_cov = 0.045071426779031754, cov = 0.0004669646150432527
+ 33%|█████████████▎                          | 334/1000 [00:50<01:34,  7.07it/s]Step 334: loss = 49341.1367, train_acc = 33/94, 35.11%,  test_acc = 0/130, 0.00%, last_cov = 0.045071426779031754, cov = 0.0004107223358005285, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:51<01:41,  6.54it/s]
+Number of Pseudo-Novel Samples: 20 / 80
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11870.6094, train_acc = 1/22, 4.55%,  test_acc = 0/130, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:00<13:48,  1.21it/s]Early stopping du to loss is NaN
-  0%|                                          | 1/1000 [00:01<18:14,  1.10s/it]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12672.2744, train_acc = 3/24, 12.50%,  test_acc = 0/130, 0.00%, last_cov = 0.061581216752529144, cov = 0.001172384712845087
+ 10%|████                                    | 100/1000 [00:15<01:54,  7.89it/s]Step 100: loss = 12671.1387, train_acc = 3/24, 12.50%,  test_acc = 0/130, 0.00%, last_cov = 0.061581216752529144, cov = 0.000961648765951395
+ 20%|████████                                | 200/1000 [00:28<01:40,  7.99it/s]Step 200: loss = 12669.2549, train_acc = 3/24, 12.50%,  test_acc = 0/130, 0.00%, last_cov = 0.061581216752529144, cov = 0.0006915256381034851
+ 30%|████████████                            | 300/1000 [00:40<01:29,  7.81it/s]Step 300: loss = 12667.0020, train_acc = 5/24, 20.83%,  test_acc = 0/130, 0.00%, last_cov = 0.061581216752529144, cov = 0.00046695946366526186
+ 33%|█████████████▎                          | 334/1000 [00:45<01:24,  7.85it/s]Step 334: loss = 12666.2666, train_acc = 5/24, 20.83%,  test_acc = 0/130, 0.00%, last_cov = 0.061581216752529144, cov = 0.0004107137501705438, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:45<01:30,  7.33it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    44   |   403   | 10.918114143920596 |
-|   Old   |    44   |   273   | 16.117216117216117 |
+|   All   |    34   |   403   | 8.436724565756824  |
+|   Old   |    34   |   273   | 12.454212454212454 |
 |   New   |    0    |   130   |        0.0         |
-|    S0   |    44   |   232   | 18.96551724137931  |
+|    S0   |    28   |   232   | 12.068965517241379 |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 3) ---
-Epoch 1/10 | Loss: 2.4709 | Ent_Inter: 0.6231 | Ent_Old: 0.6454 | Ent_New: 0.0000 | Contra: 1.2024
-Epoch 2/10 | Loss: 2.0326 | Ent_Inter: 0.6008 | Ent_Old: 0.3950 | Ent_New: 0.0000 | Contra: 1.0368
-Epoch 3/10 | Loss: 1.6600 | Ent_Inter: 0.5565 | Ent_Old: 0.2000 | Ent_New: 0.0000 | Contra: 0.9036
-Epoch 4/10 | Loss: 1.3374 | Ent_Inter: 0.4975 | Ent_Old: 0.1097 | Ent_New: 0.0000 | Contra: 0.7302
-Epoch 5/10 | Loss: 1.1404 | Ent_Inter: 0.3904 | Ent_Old: 0.1022 | Ent_New: 0.0000 | Contra: 0.6478
-Epoch 6/10 | Loss: 0.9867 | Ent_Inter: 0.2438 | Ent_Old: 0.1187 | Ent_New: 0.0000 | Contra: 0.6242
-Epoch 7/10 | Loss: 0.8232 | Ent_Inter: 0.1028 | Ent_Old: 0.1196 | Ent_New: 0.0000 | Contra: 0.6008
-Epoch 8/10 | Loss: 0.6946 | Ent_Inter: 0.0161 | Ent_Old: 0.1017 | Ent_New: 0.0000 | Contra: 0.5768
-Epoch 9/10 | Loss: 0.6478 | Ent_Inter: 0.0010 | Ent_Old: 0.0820 | Ent_New: 0.0000 | Contra: 0.5648
-Epoch 10/10 | Loss: 0.6406 | Ent_Inter: 0.0155 | Ent_Old: 0.0674 | Ent_New: 0.0000 | Contra: 0.5577
+Epoch 1/10 | Loss: 6.5856 | Ent_Inter: 0.6650 | Ent_Old: 1.3834 | Ent_New: 2.7162 | Contra: 0.9105
+Epoch 2/10 | Loss: 6.0470 | Ent_Inter: 0.6466 | Ent_Old: 1.2208 | Ent_New: 2.4143 | Contra: 0.8826
+Epoch 3/10 | Loss: 5.1514 | Ent_Inter: 0.5954 | Ent_Old: 0.8963 | Ent_New: 1.9581 | Contra: 0.8508
+Epoch 4/10 | Loss: 4.1293 | Ent_Inter: 0.4829 | Ent_Old: 0.5074 | Ent_New: 1.4591 | Contra: 0.8399
+Epoch 5/10 | Loss: 3.3422 | Ent_Inter: 0.3023 | Ent_Old: 0.3519 | Ent_New: 1.0112 | Contra: 0.8384
+Epoch 6/10 | Loss: 2.6924 | Ent_Inter: 0.0839 | Ent_Old: 0.3289 | Ent_New: 0.6051 | Contra: 0.8373
+Epoch 7/10 | Loss: 2.2429 | Ent_Inter: 0.0052 | Ent_Old: 0.2722 | Ent_New: 0.2982 | Contra: 0.8336
+Epoch 8/10 | Loss: 2.1286 | Ent_Inter: 0.1381 | Ent_Old: 0.1978 | Ent_New: 0.1395 | Contra: 0.8266
+Epoch 9/10 | Loss: 2.1467 | Ent_Inter: 0.2940 | Ent_Old: 0.1481 | Ent_New: 0.0736 | Contra: 0.8155
+Epoch 10/10 | Loss: 2.1705 | Ent_Inter: 0.4022 | Ent_Old: 0.1199 | Ent_New: 0.0444 | Contra: 0.8020
 --- Re-extracting Features for VB Pipeline ---
 Clustering novel classes: 1 Offset: 7
 label_offset 7
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
-Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7.]), array([ 4,  4,  4,  4,  4,  4,  4, 20]))
-Re-initialized global_params for 7 old classes in debiased space
-HAPPY prototype replay added: 10 samples
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7.]), array([10, 10, 10, 10, 10, 10, 10, 20]))
+Re-initialized global_params for 7 old + 1 novel classes in debiased space
+Auto-enabled diagonal covariance (min samples/class=10, dim=384)
+HAPPY prototype replay added: 19 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 30435.3691, train_acc = 5/58, 8.62%,  test_acc = 0/43, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                        | 1/1000 [00:03<1:02:06,  3.73s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:04<1:06:36,  4.00s/it]
-Number of Pseudo-Novel Samples: 20 / 48
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 56428.5234, train_acc = 35/109, 32.11%,  test_acc = 3/43, 6.98%, last_cov = 0.05554854869842529, cov = 0.0007676524110138416
+ 10%|████                                    | 100/1000 [00:17<02:07,  7.08it/s]Step 100: loss = 56422.7812, train_acc = 35/109, 32.11%,  test_acc = 3/43, 6.98%, last_cov = 0.05554854869842529, cov = 0.0006822694558650255
+ 20%|████████                                | 200/1000 [00:32<01:53,  7.07it/s]Step 200: loss = 56413.2461, train_acc = 35/109, 32.11%,  test_acc = 3/43, 6.98%, last_cov = 0.05554854869842529, cov = 0.000560348154976964
+ 30%|████████████                            | 300/1000 [00:46<01:38,  7.10it/s]Step 300: loss = 56401.9062, train_acc = 35/109, 32.11%,  test_acc = 3/43, 6.98%, last_cov = 0.05554854869842529, cov = 0.0004431461275089532
+ 33%|█████████████▎                          | 334/1000 [00:51<01:34,  7.05it/s]Step 334: loss = 56398.2031, train_acc = 35/109, 32.11%,  test_acc = 3/43, 6.98%, last_cov = 0.05554854869842529, cov = 0.0004104120598640293, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:51<01:42,  6.47it/s]
+Number of Pseudo-Novel Samples: 20 / 90
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11973.7773, train_acc = 1/22, 4.55%,  test_acc = 0/43, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:00<13:50,  1.20it/s]Early stopping du to loss is NaN
-  0%|                                          | 1/1000 [00:01<18:14,  1.10s/it]
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12737.0586, train_acc = 6/24, 25.00%,  test_acc = 3/43, 6.98%, last_cov = 0.05050181597471237, cov = 0.0007676524110138416
+ 10%|████                                    | 100/1000 [00:13<01:55,  7.80it/s]Step 100: loss = 12735.8076, train_acc = 6/24, 25.00%,  test_acc = 3/43, 6.98%, last_cov = 0.05050181597471237, cov = 0.000682279234752059
+ 20%|████████                                | 200/1000 [00:25<01:41,  7.90it/s]Step 200: loss = 12733.7178, train_acc = 6/24, 25.00%,  test_acc = 3/43, 6.98%, last_cov = 0.05050181597471237, cov = 0.0005603799363598228
+ 30%|████████████                            | 300/1000 [00:38<01:28,  7.90it/s]Step 300: loss = 12731.2314, train_acc = 6/24, 25.00%,  test_acc = 3/43, 6.98%, last_cov = 0.05050181597471237, cov = 0.0004432412388268858
+ 33%|█████████████▎                          | 334/1000 [00:43<01:24,  7.89it/s]Step 334: loss = 12730.4189, train_acc = 6/24, 25.00%,  test_acc = 3/43, 6.98%, last_cov = 0.05050181597471237, cov = 0.0004105278931092471, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:43<01:26,  7.70it/s]
 +---------+---------+---------+--------------------+
 | TestSet | Correct | Smaples |      Accuracy      |
 +---------+---------+---------+--------------------+
-|   All   |    44   |   446   | 9.865470852017937  |
-|   Old   |    44   |   403   | 10.918114143920596 |
-|   New   |    0    |    43   |        0.0         |
-|    S0   |    44   |   232   | 18.96551724137931  |
+|   All   |    75   |   446   | 16.816143497757846 |
+|   Old   |    72   |   403   | 17.866004962779158 |
+|   New   |    3    |    43   | 6.976744186046512  |
+|    S0   |    26   |   232   | 11.206896551724139 |
 +---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 4) ---
-Epoch 1/10 | Loss: 2.7016 | Ent_Inter: 0.6331 | Ent_Old: 0.7887 | Ent_New: 0.0000 | Contra: 1.2798
-Epoch 2/10 | Loss: 2.3712 | Ent_Inter: 0.6101 | Ent_Old: 0.5072 | Ent_New: 0.0000 | Contra: 1.2539
-Epoch 3/10 | Loss: 1.9399 | Ent_Inter: 0.5721 | Ent_Old: 0.1714 | Ent_New: 0.0000 | Contra: 1.1965
-Epoch 4/10 | Loss: 1.7623 | Ent_Inter: 0.5346 | Ent_Old: 0.1001 | Ent_New: 0.0000 | Contra: 1.1276
-Epoch 5/10 | Loss: 1.6695 | Ent_Inter: 0.4829 | Ent_Old: 0.1204 | Ent_New: 0.0000 | Contra: 1.0661
-Epoch 6/10 | Loss: 1.5158 | Ent_Inter: 0.3939 | Ent_Old: 0.1128 | Ent_New: 0.0000 | Contra: 1.0092
-Epoch 7/10 | Loss: 1.3089 | Ent_Inter: 0.2561 | Ent_Old: 0.1043 | Ent_New: 0.0000 | Contra: 0.9486
-Epoch 8/10 | Loss: 1.1148 | Ent_Inter: 0.1042 | Ent_Old: 0.1197 | Ent_New: 0.0000 | Contra: 0.8909
-Epoch 9/10 | Loss: 1.0266 | Ent_Inter: 0.0214 | Ent_Old: 0.1606 | Ent_New: 0.0000 | Contra: 0.8446
-Epoch 10/10 | Loss: 0.9827 | Ent_Inter: 0.0019 | Ent_Old: 0.1805 | Ent_New: 0.0000 | Contra: 0.8003
+Epoch 1/10 | Loss: 7.5512 | Ent_Inter: 0.6850 | Ent_Old: 1.7587 | Ent_New: 3.4378 | Contra: 0.8349
+Epoch 2/10 | Loss: 7.4716 | Ent_Inter: 0.6836 | Ent_Old: 1.8450 | Ent_New: 3.3431 | Contra: 0.8000
+Epoch 3/10 | Loss: 7.1314 | Ent_Inter: 0.6772 | Ent_Old: 1.8725 | Ent_New: 3.0500 | Contra: 0.7658
+Epoch 4/10 | Loss: 6.8079 | Ent_Inter: 0.6676 | Ent_Old: 1.8789 | Ent_New: 2.7737 | Contra: 0.7438
+Epoch 5/10 | Loss: 6.3265 | Ent_Inter: 0.6404 | Ent_Old: 1.8572 | Ent_New: 2.3390 | Contra: 0.7449
+Epoch 6/10 | Loss: 5.9812 | Ent_Inter: 0.6096 | Ent_Old: 1.8135 | Ent_New: 2.0559 | Contra: 0.7511
+Epoch 7/10 | Loss: 5.6340 | Ent_Inter: 0.5653 | Ent_Old: 1.7290 | Ent_New: 1.7869 | Contra: 0.7764
+Epoch 8/10 | Loss: 5.2639 | Ent_Inter: 0.5257 | Ent_Old: 1.5936 | Ent_New: 1.6113 | Contra: 0.7666
+Epoch 9/10 | Loss: 4.6475 | Ent_Inter: 0.4382 | Ent_Old: 1.4024 | Ent_New: 1.3260 | Contra: 0.7405
+Epoch 10/10 | Loss: 3.9602 | Ent_Inter: 0.3089 | Ent_Old: 1.2038 | Ent_New: 1.0244 | Contra: 0.7116
 --- Re-extracting Features for VB Pipeline ---
 Clustering novel classes: 1 Offset: 8
 label_offset 8
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
-Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8.]), array([ 4,  4,  4,  4,  4,  4,  4,  4, 20]))
-Re-initialized global_params for 8 old classes in debiased space
-HAPPY prototype replay added: 13 samples
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8.]), array([10, 10, 10, 10, 10, 10, 10, 10, 20]))
+Re-initialized global_params for 8 old + 1 novel classes in debiased space
+Auto-enabled diagonal covariance (min samples/class=10, dim=384)
+HAPPY prototype replay added: 25 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 33684.7734, train_acc = 9/65, 13.85%,  test_acc = 0/6, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                        | 1/1000 [00:03<1:05:24,  3.93s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:04<1:10:32,  4.24s/it]
-Number of Pseudo-Novel Samples: 20 / 52
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 66217.2578, train_acc = 34/125, 27.20%,  test_acc = 0/6, 0.00%, last_cov = 0.0855737254023552, cov = 0.0004531184385996312
+ 10%|████                                    | 100/1000 [00:18<02:12,  6.78it/s]Step 100: loss = 66208.1172, train_acc = 35/125, 28.00%,  test_acc = 0/6, 0.00%, last_cov = 0.0855737254023552, cov = 0.0003625517711043358
+ 20%|████████                                | 200/1000 [00:32<01:57,  6.82it/s]Step 200: loss = 66192.9062, train_acc = 36/125, 28.80%,  test_acc = 0/6, 0.00%, last_cov = 0.0855737254023552, cov = 0.00024975917767733335
+ 30%|████████████                            | 300/1000 [00:48<01:42,  6.80it/s]Step 300: loss = 66174.8047, train_acc = 38/125, 30.40%,  test_acc = 0/6, 0.00%, last_cov = 0.0855737254023552, cov = 0.00015974360576365143
+ 33%|█████████████▎                          | 334/1000 [00:53<01:37,  6.86it/s]Step 334: loss = 66168.8828, train_acc = 38/125, 30.40%,  test_acc = 0/6, 0.00%, last_cov = 0.0855737254023552, cov = 0.0001379394525429234, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:53<01:46,  6.25it/s]
+Number of Pseudo-Novel Samples: 20 / 100
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11078.0752, train_acc = 0/22, 0.00%,  test_acc = 0/6, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:00<13:59,  1.19it/s]Early stopping du to loss is NaN
-  0%|                                          | 1/1000 [00:01<18:19,  1.10s/it]
-+---------+---------+---------+-------------------+
-| TestSet | Correct | Smaples |      Accuracy     |
-+---------+---------+---------+-------------------+
-|   All   |    44   |   452   | 9.734513274336283 |
-|   Old   |    44   |   446   | 9.865470852017937 |
-|   New   |    0    |    6    |        0.0        |
-|    S0   |    44   |   232   | 18.96551724137931 |
-+---------+---------+---------+-------------------+
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 11604.4834, train_acc = 4/25, 16.00%,  test_acc = 0/6, 0.00%, last_cov = 0.08326709270477295, cov = 0.0004531184385996312
+ 10%|████                                    | 100/1000 [00:15<01:54,  7.87it/s]Step 100: loss = 11601.9932, train_acc = 4/25, 16.00%,  test_acc = 0/6, 0.00%, last_cov = 0.08326709270477295, cov = 0.0003625685640145093
+ 20%|████████                                | 200/1000 [00:28<01:40,  7.96it/s]Step 200: loss = 11597.8398, train_acc = 5/25, 20.00%,  test_acc = 0/6, 0.00%, last_cov = 0.08326709270477295, cov = 0.0002498437534086406
+ 30%|████████████                            | 300/1000 [00:40<01:28,  7.91it/s]Step 300: loss = 11592.8809, train_acc = 5/25, 20.00%,  test_acc = 0/6, 0.00%, last_cov = 0.08326709270477295, cov = 0.00015992438420653343
+ 33%|█████████████▎                          | 334/1000 [00:45<01:24,  7.86it/s]Step 334: loss = 11591.2549, train_acc = 6/25, 24.00%,  test_acc = 0/6, 0.00%, last_cov = 0.08326709270477295, cov = 0.00013815431157127023, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:45<01:31,  7.32it/s]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    45   |   452   | 9.955752212389381  |
+|   Old   |    45   |   446   | 10.089686098654708 |
+|   New   |    0    |    6    |        0.0         |
+|    S0   |    38   |   232   | 16.379310344827587 |
++---------+---------+---------+--------------------+
 --- Starting Debiased Representation Learning (Stage 5) ---
-Epoch 1/10 | Loss: 2.2238 | Ent_Inter: 0.6248 | Ent_Old: 0.5165 | Ent_New: 0.0000 | Contra: 1.0825
-Epoch 2/10 | Loss: 1.9926 | Ent_Inter: 0.6088 | Ent_Old: 0.4092 | Ent_New: 0.0000 | Contra: 0.9746
-Epoch 3/10 | Loss: 1.6108 | Ent_Inter: 0.5700 | Ent_Old: 0.2246 | Ent_New: 0.0000 | Contra: 0.8161
-Epoch 4/10 | Loss: 1.2646 | Ent_Inter: 0.4950 | Ent_Old: 0.0531 | Ent_New: 0.0000 | Contra: 0.7165
-Epoch 5/10 | Loss: 1.0697 | Ent_Inter: 0.3832 | Ent_Old: 0.0310 | Ent_New: 0.0000 | Contra: 0.6555
-Epoch 6/10 | Loss: 0.8954 | Ent_Inter: 0.2181 | Ent_Old: 0.0551 | Ent_New: 0.0000 | Contra: 0.6223
-Epoch 7/10 | Loss: 0.7458 | Ent_Inter: 0.0501 | Ent_Old: 0.0673 | Ent_New: 0.0000 | Contra: 0.6283
-Epoch 8/10 | Loss: 0.6851 | Ent_Inter: 0.0008 | Ent_Old: 0.0702 | Ent_New: 0.0000 | Contra: 0.6140
-Epoch 9/10 | Loss: 0.6253 | Ent_Inter: 0.0239 | Ent_Old: 0.0549 | Ent_New: 0.0000 | Contra: 0.5465
-Epoch 10/10 | Loss: 0.5594 | Ent_Inter: 0.0321 | Ent_Old: 0.0361 | Ent_New: 0.0000 | Contra: 0.4913
+Epoch 1/10 | Loss: 5.8392 | Ent_Inter: 0.6727 | Ent_Old: 0.9131 | Ent_New: 2.9038 | Contra: 0.6748
+Epoch 2/10 | Loss: 5.7562 | Ent_Inter: 0.6693 | Ent_Old: 0.9520 | Ent_New: 2.8128 | Contra: 0.6610
+Epoch 3/10 | Loss: 5.6806 | Ent_Inter: 0.6619 | Ent_Old: 1.0582 | Ent_New: 2.6530 | Contra: 0.6537
+Epoch 4/10 | Loss: 5.4913 | Ent_Inter: 0.6462 | Ent_Old: 1.1360 | Ent_New: 2.4095 | Contra: 0.6498
+Epoch 5/10 | Loss: 5.1429 | Ent_Inter: 0.6136 | Ent_Old: 1.1465 | Ent_New: 2.0868 | Contra: 0.6480
+Epoch 6/10 | Loss: 4.6459 | Ent_Inter: 0.5485 | Ent_Old: 1.0946 | Ent_New: 1.7075 | Contra: 0.6476
+Epoch 7/10 | Loss: 4.0412 | Ent_Inter: 0.4304 | Ent_Old: 1.0102 | Ent_New: 1.3049 | Contra: 0.6478
+Epoch 8/10 | Loss: 3.4008 | Ent_Inter: 0.2533 | Ent_Old: 0.9344 | Ent_New: 0.9160 | Contra: 0.6485
+Epoch 9/10 | Loss: 2.8340 | Ent_Inter: 0.0702 | Ent_Old: 0.8867 | Ent_New: 0.5778 | Contra: 0.6496
+Epoch 10/10 | Loss: 2.4845 | Ent_Inter: 0.0006 | Ent_Old: 0.8522 | Ent_New: 0.3294 | Contra: 0.6512
 --- Re-extracting Features for VB Pipeline ---
 Clustering novel classes: 1 Offset: 9
 label_offset 9
 /usr/local/lib/python3.12/dist-packages/sklearn/metrics/_classification.py:407: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
   warnings.warn(
-Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.]), array([ 4,  4,  4,  4,  4,  4,  4,  4,  4, 20]))
-Re-initialized global_params for 9 old classes in debiased space
-HAPPY prototype replay added: 16 samples
+Combined Pred Unique Counts: (array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.]), array([10, 10, 10, 10, 10, 10, 10, 10,  5, 20]))
+Re-initialized global_params for 9 old + 1 novel classes in debiased space
+Auto-enabled diagonal covariance (min samples/class=5, dim=384)
+HAPPY prototype replay added: 31 samples
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 37999.5781, train_acc = 9/72, 12.50%,  test_acc = 0/11, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:03<56:53,  3.42s/it]Early stopping du to loss is NaN
-  0%|                                        | 1/1000 [00:03<1:02:18,  3.74s/it]
-Number of Pseudo-Novel Samples: 20 / 56
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 72611.1250, train_acc = 33/136, 24.26%,  test_acc = 0/11, 0.00%, last_cov = 0.06565097719430923, cov = 0.0015423836885020137
+ 10%|████                                    | 100/1000 [00:18<02:19,  6.45it/s]Step 100: loss = 72401.3281, train_acc = 33/136, 24.26%,  test_acc = 0/11, 0.00%, last_cov = 0.06565097719430923, cov = 0.0017935355426743627
+ 20%|████████                                | 200/1000 [00:34<02:06,  6.35it/s]Step 200: loss = 71411.2344, train_acc = 34/136, 25.00%,  test_acc = 0/11, 0.00%, last_cov = 0.06565097719430923, cov = 0.0022603296674788
+ 30%|████████████                            | 300/1000 [00:50<01:48,  6.46it/s]Step 300: loss = 71456.9297, train_acc = 34/136, 25.00%,  test_acc = 0/11, 0.00%, last_cov = 0.06565097719430923, cov = 0.002953565213829279
+ 33%|█████████████▎                          | 334/1000 [00:55<01:42,  6.51it/s]Step 334: loss = 72649.5156, train_acc = 34/136, 25.00%,  test_acc = 0/11, 0.00%, last_cov = 0.06565097719430923, cov = 0.0032758277375251055, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:55<01:51,  5.99it/s]
+Number of Pseudo-Novel Samples: 20 / 105
 Initializing model
-  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 12247.2734, train_acc = 1/22, 4.55%,  test_acc = 0/11, 0.00%, last_cov = 1.0, cov = 1.0
-  0%|                                          | 1/1000 [00:00<12:50,  1.30it/s]Early stopping du to loss is NaN
-  0%|                                          | 1/1000 [00:01<17:11,  1.03s/it]
-+---------+---------+---------+-------------------+
-| TestSet | Correct | Smaples |      Accuracy     |
-+---------+---------+---------+-------------------+
-|   All   |    44   |   463   | 9.503239740820735 |
-|   Old   |    44   |   452   | 9.734513274336283 |
-|   New   |    0    |    11   |        0.0        |
-|    S0   |    44   |   232   | 18.96551724137931 |
-+---------+---------+---------+-------------------+
+  0%|                                                  | 0/1000 [00:00<?, ?it/s]Step 0: loss = 14042.2471, train_acc = 5/25, 20.00%,  test_acc = 0/11, 0.00%, last_cov = 0.07501186430454254, cov = 0.0015423836885020137
+ 10%|████                                    | 100/1000 [00:13<01:56,  7.70it/s]Step 100: loss = 14041.0879, train_acc = 5/25, 20.00%,  test_acc = 0/11, 0.00%, last_cov = 0.07501186430454254, cov = 0.001848861575126648
+ 20%|████████                                | 200/1000 [00:26<01:41,  7.88it/s]Step 200: loss = 14039.1660, train_acc = 5/25, 20.00%,  test_acc = 0/11, 0.00%, last_cov = 0.07501186430454254, cov = 0.002495309803634882
+ 30%|████████████                            | 300/1000 [00:39<01:29,  7.81it/s]Step 300: loss = 14036.8770, train_acc = 5/25, 20.00%,  test_acc = 0/11, 0.00%, last_cov = 0.07501186430454254, cov = 0.003562414785847068
+ 33%|█████████████▎                          | 334/1000 [00:43<01:24,  7.89it/s]Step 334: loss = 14036.1279, train_acc = 5/25, 20.00%,  test_acc = 0/11, 0.00%, last_cov = 0.07501186430454254, cov = 0.004001273773610592, early_stop_flag = True
+ 33%|█████████████▎                          | 334/1000 [00:43<01:27,  7.60it/s]
++---------+---------+---------+--------------------+
+| TestSet | Correct | Smaples |      Accuracy      |
++---------+---------+---------+--------------------+
+|   All   |    30   |   463   | 6.479481641468682  |
+|   Old   |    30   |   452   | 6.6371681415929205 |
+|   New   |    0    |    11   |        0.0         |
+|    S0   |    21   |   232   | 9.051724137931034  |
++---------+---------+---------+--------------------+

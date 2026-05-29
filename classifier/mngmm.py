@@ -128,10 +128,10 @@ class MNGMMClassifier():
 
         scheduler = optax.join_schedules(
             schedules=[
-                optax.linear_schedule(init_value=init_lr, end_value=init_lr*3, transition_steps=200),
-                optax.exponential_decay(init_value=init_lr*3, transition_steps=500, decay_rate=0.95),
+                optax.linear_schedule(init_value=init_lr, end_value=init_lr*10, transition_steps=100),
+                optax.exponential_decay(init_value=init_lr*10, transition_steps=500, decay_rate=0.90),
             ],
-            boundaries=[200]
+            boundaries=[100]
         )
 
         self.guide = lambda *args, **kwargs: None
@@ -158,7 +158,7 @@ class MNGMMClassifier():
 
             early_stop_flag, dets = self.calculate_metrics_on_covariances(self.svi.get_params(self.svi_state), increment=self.increment, use_correct_scaling_factor=use_correct_scaling_factor)
 
-            if(self.with_early_stop & early_stop_flag & (last_state is not None) & (step > 1/3 * self.num_steps)):
+            if(self.with_early_stop & early_stop_flag & (last_state is not None) & (step > 1/2 * self.num_steps)):
 
                 self.svi_state = last_state
 
