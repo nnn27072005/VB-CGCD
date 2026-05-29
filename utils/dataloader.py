@@ -45,12 +45,18 @@ class IncrementalLoader(ABC):
                 np.load(test_images_path, allow_pickle=True),
             )
 
-        # Backward compatibility with the original implementation, which always
-        # used CIFAR100 images for the active representation stage.
-        import torchvision
-        train_cifar = torchvision.datasets.CIFAR100(root='./data', train=True, download=True)
-        test_cifar = torchvision.datasets.CIFAR100(root='./data', train=False, download=True)
-        return train_cifar.data, test_cifar.data
+        # Backward compatibility for the original CIFAR100 feature files.
+        if len(self.features) == 50000 and len(self.test_features) == 10000:
+            import torchvision
+            train_cifar = torchvision.datasets.CIFAR100(root='./data', train=True, download=True)
+            test_cifar = torchvision.datasets.CIFAR100(root='./data', train=False, download=True)
+            return train_cifar.data, test_cifar.data
+
+        raise FileNotFoundError(
+            f"Missing image mapping files in {model_dir}. Expected "
+            f"{train_images_path.name} and {test_images_path.name}. "
+            "Run the dataset feature extraction script first."
+        )
 
     def _make_dataset(self, features, labels, test_features, test_labels):
         train_dataset = InMemoryDataset(features, labels)

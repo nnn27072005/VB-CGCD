@@ -8,9 +8,6 @@ import sys
 import time
 import argparse
 
-os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
 import numpy as np
 
 import torch
@@ -22,8 +19,7 @@ from dataloaders.cifar100 import CIFAR100Loader
 from dataloaders.tinyimagenet import TinyImageNetLoader
 from dataloaders.imagenet100 import ImageNet100Loader
 from dataloaders.cub200 import CUB200Loader
-from dataloaders.gc10det import GC10DETLoader
-
+from dataloaders.gc10det import GC10_DETLoader
 from classifier.mngmm import MNGMMClassifier
 
 from clustering.gmm import GMMCluster
@@ -45,11 +41,7 @@ class ImageStageDataset(Dataset):
 
     def __getitem__(self, idx):
         from PIL import Image
-        img_ref = self.images[idx]
-        if isinstance(img_ref, (str, bytes, os.PathLike)):
-            img = Image.open(img_ref).convert("RGB")
-        else:
-            img = Image.fromarray(img_ref).convert("RGB")
+        img = Image.fromarray(self.images[idx]) # CIFAR arrays to PIL
         if self.transform:
             img = self.transform(img)
         return img, self.features[idx], self.labels[idx]
@@ -99,7 +91,7 @@ def debias_dataset(backbone, projector, data_obj, batch_size, device):
     unconstrained Euclidean space — appropriate for MultivariateNormal.
     """
     ds = ImageStageDataset(data_obj, transform=dino_transform)
-    loader = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    loader = DataLoader(ds, batch_size=batch_size, shuffle=False)
     feats = []
     with torch.no_grad():
         for images, _, _ in loader:
@@ -109,158 +101,13 @@ def debias_dataset(backbone, projector, data_obj, batch_size, device):
             feats.append(z.cpu().numpy())
     return np.concatenate(feats, axis=0)
 
-
-class FixedFeatureReducer:
-    """Fit preprocessing once, then reuse it for all incremental stages."""
-
-    def __init__(self, requested_dim):
-        from sklearn.decomposition import PCA
-        from sklearn.preprocessing import StandardScaler
-
-        self.requested_dim = requested_dim
-        self.scaler = StandardScaler()
-        self.pca_cls = PCA
-        self.pca = None
-        self.n_components = None
-
-    def fit_transform(self, features_dict):
-        train_f = self.scaler.fit_transform(features_dict['train'])
-        self.n_components = min(
-            self.requested_dim,
-            train_f.shape[0] - 1,
-            train_f.shape[1],
-        )
-        if self.n_components < 1:
-            raise ValueError(
-                f"Need at least 2 training samples for PCA, got {train_f.shape[0]}"
-            )
-        if self.n_components < self.requested_dim:
-            print(
-                f"Capping PCA components: {self.requested_dim} -> {self.n_components} "
-                f"(samples={train_f.shape[0]}, raw_dim={train_f.shape[1]})"
-            )
-
-        self.pca = self.pca_cls(n_components=self.n_components)
-        train_f = self.pca.fit_transform(train_f)
-        print(
-            f"Feature pipeline: 384 -> fixed standardize -> fixed PCA "
-            f"{self.n_components}d "
-            f"(explained variance: {self.pca.explained_variance_ratio_.sum():.2%})"
-        )
-        return self._transform_rest(features_dict, train_f)
-
-    def transform(self, features_dict):
-        if self.pca is None:
-            raise ValueError("FixedFeatureReducer must be fit before transform")
-        train_f = self.pca.transform(self.scaler.transform(features_dict['train']))
-        print(
-            f"Feature pipeline: 384 -> reused standardize -> reused PCA "
-            f"{self.n_components}d"
-        )
-        return self._transform_rest(features_dict, train_f)
-
-    def _transform_rest(self, features_dict, train_f):
-        result = {'train': train_f}
-        for key, val in features_dict.items():
-            if key != 'train':
-                result[key] = self.pca.transform(self.scaler.transform(val))
-        return result
-
-
-def reduce_features(features_dict, num_dim, reducer=None):
-    """Standardize + PCA reduce features with a stage-stable projection."""
-    if reducer is None:
-        reducer = FixedFeatureReducer(num_dim)
-        reduced = reducer.fit_transform(features_dict)
-    else:
-        reduced = reducer.transform(features_dict)
-    return reduced, reducer.n_components, reducer
-
-
-def _legacy_reduce_features(features_dict, num_dim):
-    """Old per-stage reducer kept only as a reference for experiments."""
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.decomposition import PCA
-
-    scaler = StandardScaler()
-    train_f = scaler.fit_transform(features_dict['train'])
-
-    n_components = min(num_dim, train_f.shape[0] - 1, train_f.shape[1])
-    if n_components < num_dim:
-        print(f"Capping PCA components: {num_dim} → {n_components} "
-              f"(samples={train_f.shape[0]}, raw_dim={train_f.shape[1]})")
-
-    pca = PCA(n_components=n_components)
-    train_f = pca.fit_transform(train_f)
-    print(f"Feature pipeline: 384 → standardize → PCA {n_components}d "
-          f"(explained variance: {pca.explained_variance_ratio_.sum():.2%})")
-
-    result = {'train': train_f}
-    for key, val in features_dict.items():
-        if key != 'train':
-            result[key] = pca.transform(scaler.transform(val))
-
-    return result, n_components
-
-
-def compute_class_init_params(features, labels, num_classes, num_dim):
-    """Compute initial class means and covariances from data statistics.
-    
-    This gives the MNGMM a much better starting point than zeros/identity,
-    which prevents the initial loss from being astronomically large.
-    """
-    means = np.zeros((num_classes, num_dim))
-    covs = np.stack([np.eye(num_dim)] * num_classes)
-    
-    for c in range(num_classes):
-        c_mask = labels == c
-        if c_mask.sum() > 0:
-            c_data = features[c_mask]
-            means[c] = c_data.mean(axis=0)
-            if c_mask.sum() > 1:
-                sample_cov = np.cov(c_data, rowvar=False)
-                alpha = max(0.3, 1.0 - c_mask.sum() / (2 * num_dim))
-                covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(num_dim)
-    
-    return {
-        'class_means': jnp.array(means, dtype=jnp.float32),
-        'class_covs': jnp.array(covs, dtype=jnp.float32),
-    }
-
-
-def update_class_params(params, features, labels, class_ids, num_dim):
-    """Update selected classes from current data while preserving all others."""
-    means = np.array(params['class_means'])
-    covs = np.array(params['class_covs'])
-
-    if means.shape[1] != num_dim or covs.shape[1:] != (num_dim, num_dim):
-        raise ValueError(
-            f"global_params dim {means.shape[1]} is incompatible with feature dim {num_dim}"
-        )
-
-    for c in class_ids:
-        c_mask = labels == c
-        if c_mask.sum() > 0:
-            c_data = features[c_mask]
-            means[c] = c_data.mean(axis=0)
-            if c_mask.sum() > 1:
-                sample_cov = np.cov(c_data, rowvar=False)
-                alpha = max(0.3, 1.0 - c_mask.sum() / (2 * num_dim))
-                covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(num_dim)
-            else:
-                covs[c] = np.eye(num_dim)
-
-    return {
-        'class_means': jnp.array(means, dtype=jnp.float32),
-        'class_covs': jnp.array(covs, dtype=jnp.float32),
-    }
-
-
 class SimpleData:
     """Lightweight data wrapper with _x and _y attributes for the classifier."""
     def __init__(self, x, y):
         self._x = x
         self._y = y
+
+os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
 # get the current time with a format yyyyMMdd-HHmm
 def get_current_time():
@@ -305,11 +152,20 @@ def Dataloader(args):
     elif args.dataset == 'cub200':
         cub200Loader = CUB200Loader(args = args)
         train_loader, test_loader, test_old_loader, test_all_loader = load_mode(args, cub200Loader)
-
-    elif args.dataset == 'gc10det':
-        gc10detLoader = GC10DETLoader(args = args)
-        train_loader, test_loader, test_old_loader, test_all_loader = load_mode(args, gc10detLoader)
-
+    elif args.dataset == 'gc10-det':    
+        args.num_classes = 10
+        args.base = 5            
+        args.increment = 1       
+        args.num_dim = 384       
+        args.batch_size = 16      
+        args.n_epochs = 1000       
+        args.lr = 1e-05
+        
+        # Mặc định gọi kịch bản T5 (chia làm 5 chặng online lớp mới)
+        loader = GC10_DETLoader(args)
+        train_loader, test_loader, test_old_loader, test_all_loader = loader.makeT5Loader()
+ 
+        train_loader, test_loader, test_old_loader, test_all_loader = loader.makeT5Loader()
     else:
         raise ValueError('Dataset not supported')
 
@@ -338,12 +194,6 @@ if __name__ == '__main__':
     parser.add_argument("--scaling-factor", type=float, default=1.2, help="Scaling factor for learning from arbitary")
     parser.add_argument("--batch-size", type=int, default=128, help="Batch size")
     parser.add_argument("--early_stop_ratio", type=float, default=0, help="R in early stop")
-    parser.add_argument(
-        "--freeze_projector_after_base",
-        default=True,
-        action=argparse.BooleanOptionalAction,
-        help="Keep the debiased feature space fixed after stage 0",
-    )
     args = parser.parse_args()
 
     # Set the random seed
@@ -362,32 +212,48 @@ if __name__ == '__main__':
     if not os.path.exists(f"logs/{log_saved_dir}/saved_models"):
         os.makedirs(f"logs/{log_saved_dir}/saved_models")
 
-    # ==============================================================================
-    # Initialize DINO backbone + projector ONCE, before any stage
-    # ==============================================================================
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    backbone, projector = build_models(device, out_dim=args.num_classes)
-    optimizer_proj = torch.optim.AdamW(projector.parameters(), lr=1e-3, weight_decay=1e-4)
-    debiased_loss_fn = Debiased_Representation_Loss(feature_dim=384, hidden_dim=128).to(device)
+    # same classifier for all stages, static expension
+    s_classifier = Classifier(num_classes=args.num_classes, num_dim=args.num_dim, with_early_stop=args.with_early_stop)
 
-    # effective_num_dim is fixed after stage 0 so MNGMM params stay reusable.
-    effective_num_dim = None
-    feature_reducer = None
+    print(f"scaling factor: {args.scaling_factor}")
+    s_classifier.init_parameters(n_epochs=args.n_epochs, lr=args.lr, log_dir=f"logs/{log_saved_dir}/log/stage0", save_dir=f"logs/{log_saved_dir}/saved_models/stage0", batch_size=args.batch_size, increment=args.increment, base=args.base, scaling_factor=args.scaling_factor, use_correct_scaling_factor=args.use_correct_scaling_factor, early_stop_ratio=args.early_stop_ratio)
 
     for i, (train_data, test_data, test_old_data, test_all_data) in enumerate(zip(train_loader, test_loader, test_old_loader, test_all_loader)): 
         if i == 0:
-            # ==============================================================
-            # Stage 0: Debiased representation learning (contrastive only)
-            # ==============================================================
-            old_class_indices = []
-            new_class_indices = list(range(args.base))
+            testing_set = {'test_old': test_data, 'test_all': test_data, 'known_test': test_data}
 
+            s_classifier.run(train_data._x, train_data._y, test_data._x, test_data._y, current_stage=i, testing_set=testing_set)
+
+            known_test_data = test_data
+
+        else:
+
+            label_offset = args.base + (i-1)*args.increment
+
+            # ==============================================================================
+            # START: ACTIVE REPRESENTATION LEARNING LOOP
+            # ==============================================================================
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            
+            # Dynamic Index Tracking
+            old_class_indices = list(range(args.base + (i-1)*args.increment))
+            new_class_indices = list(range(args.base + (i-1)*args.increment, args.base + i*args.increment))
+            
+            # Setup Dataloader
             stage_dataset = ImageStageDataset(train_data, transform=dino_transform)
-            stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
+            stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
-            print(f"--- Starting Debiased Representation Learning (Stage 0) ---")
+            # Initialize Models & Loss
+            out_dim = args.base + i*args.increment 
+            if 'projector' not in locals():
+                backbone, projector = build_models(device, out_dim=args.num_classes)
+                optimizer = torch.optim.AdamW(projector.parameters(), lr=1e-3, weight_decay=1e-4)
+                # Ensure feature_dim matches our 384 bottleneck!
+                debiased_loss_fn = Debiased_Representation_Loss(feature_dim=384, hidden_dim=128).to(device)
+            
+            print(f"--- Starting Debiased Representation Learning (Stage {i}) ---")
             projector.train()
-            representation_epochs = 10
+            representation_epochs = 10 # Adjustable
 
             for epoch in range(representation_epochs):
                 epoch_loss = 0.0
@@ -395,22 +261,28 @@ if __name__ == '__main__':
                 
                 for images, static_feats, labels in stage_loader:
                     images = images.to(device)
+                    
                     with torch.no_grad():
                         base_features = backbone(images).pooler_output
+                        
                     z_u, logits = projector(base_features)
+                    
                     loss, loss_dict = debiased_loss_fn(
-                        z_u=z_u, logits=logits,
-                        old_class_indices=old_class_indices,
+                        z_u=z_u, 
+                        logits=logits, 
+                        old_class_indices=old_class_indices, 
                         new_class_indices=new_class_indices,
                         base_features=base_features
                     )
-                    optimizer_proj.zero_grad()
+                    
+                    optimizer.zero_grad()
                     loss.backward()
-                    optimizer_proj.step()
+                    optimizer.step()
+                    
                     epoch_loss += loss.item()
                     for k in epoch_dict.keys():
                         epoch_dict[k] += loss_dict.get(k, 0.0)
-
+                    
                 n_batches = len(stage_loader)
                 print(f"Epoch {epoch+1}/{representation_epochs} | Loss: {epoch_loss/n_batches:.4f} "
                       f"| Ent_Inter: {epoch_dict['loss_entropy_inter']/n_batches:.4f} "
@@ -418,195 +290,92 @@ if __name__ == '__main__':
                       f"| Ent_New: {epoch_dict['loss_entropy_new_in']/n_batches:.4f} "
                       f"| Contra: {epoch_dict['loss_contrastive']/n_batches:.4f}")
 
-            # Extract debiased features
-            print(f"--- Re-extracting Features for VB Pipeline (Stage 0) ---")
-            projector.eval()
-
-            raw_384_train = debias_dataset(backbone, projector, train_data, args.batch_size, device)
-            raw_384_test = debias_dataset(backbone, projector, test_data, args.batch_size, device)
-
-            # Standardize + PCA reduce: 384 → num_dim
-            reduced, effective_num_dim, feature_reducer = reduce_features(
-                {'train': raw_384_train, 'test': raw_384_test},
-                args.num_dim,
-                feature_reducer
-            )
-
-            # Create classifier with the ACTUAL reduced dimension
-            s_classifier = Classifier(
-                num_classes=args.num_classes,
-                num_dim=effective_num_dim,
-                with_early_stop=args.with_early_stop
-            )
-            print(f"scaling factor: {args.scaling_factor}")
-            s_classifier.init_parameters(
-                n_epochs=args.n_epochs, lr=args.lr,
-                log_dir=f"logs/{log_saved_dir}/log/stage0",
-                save_dir=f"logs/{log_saved_dir}/saved_models/stage0",
-                batch_size=args.batch_size, increment=args.increment,
-                base=args.base, scaling_factor=args.scaling_factor,
-                use_correct_scaling_factor=args.use_correct_scaling_factor,
-                early_stop_ratio=args.early_stop_ratio
-            )
-
-            # Initialize global_params from actual data statistics
-            labels_int = train_data._y.astype(int)
-            init_params = compute_class_init_params(
-                reduced['train'], labels_int, args.num_classes, effective_num_dim
-            )
-            s_classifier.global_params = init_params
-            s_classifier.pca = None  # PCA already done externally
-
-            testing_set = {
-                'test_old': SimpleData(reduced['test'], test_data._y),
-                'test_all': SimpleData(reduced['test'], test_data._y),
-                'known_test': SimpleData(reduced['test'], test_data._y),
-            }
-
-            s_classifier.run(
-                reduced['train'], train_data._y,
-                reduced['test'], test_data._y,
-                current_stage=i, testing_set=testing_set
-            )
-
-            known_test_data = test_data
-
-        else:
-            label_offset = args.base + (i-1)*args.increment
-
-            # ==============================================================
-            # Debiased representation learning for incremental stage
-            # ==============================================================
-            old_class_indices = list(range(args.base + (i-1)*args.increment))
-            new_class_indices = list(range(args.base + (i-1)*args.increment, args.base + i*args.increment))
-            
-            if args.freeze_projector_after_base:
-                print(
-                    f"--- Skipping Debiased Representation Learning (Stage {i}); "
-                    "projector frozen after stage 0 ---"
-                )
-                projector.eval()
-            else:
-                stage_dataset = ImageStageDataset(train_data, transform=dino_transform)
-                stage_loader = DataLoader(stage_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0)
-
-                print(f"--- Starting Debiased Representation Learning (Stage {i}) ---")
-                projector.train()
-                representation_epochs = 10
-
-                for epoch in range(representation_epochs):
-                    epoch_loss = 0.0
-                    epoch_dict = {'loss_entropy_inter': 0, 'loss_entropy_old_in': 0, 'loss_entropy_new_in': 0, 'loss_contrastive': 0}
-                    
-                    for images, static_feats, labels in stage_loader:
-                        images = images.to(device)
-                        with torch.no_grad():
-                            base_features = backbone(images).pooler_output
-                        z_u, logits = projector(base_features)
-                        loss, loss_dict = debiased_loss_fn(
-                            z_u=z_u, logits=logits,
-                            old_class_indices=old_class_indices,
-                            new_class_indices=new_class_indices,
-                            base_features=base_features
-                        )
-                        optimizer_proj.zero_grad()
-                        loss.backward()
-                        optimizer_proj.step()
-                        epoch_loss += loss.item()
-                        for k in epoch_dict.keys():
-                            epoch_dict[k] += loss_dict.get(k, 0.0)
-
-                    n_batches = len(stage_loader)
-                    print(f"Epoch {epoch+1}/{representation_epochs} | Loss: {epoch_loss/n_batches:.4f} "
-                          f"| Ent_Inter: {epoch_dict['loss_entropy_inter']/n_batches:.4f} "
-                          f"| Ent_Old: {epoch_dict['loss_entropy_old_in']/n_batches:.4f} "
-                          f"| Ent_New: {epoch_dict['loss_entropy_new_in']/n_batches:.4f} "
-                          f"| Contra: {epoch_dict['loss_contrastive']/n_batches:.4f}")
-
-            # Re-extract debiased features for ALL datasets
+            # Re-extract Debiased Features for ALL datasets
             print(f"--- Re-extracting Features for VB Pipeline ---")
             projector.eval()
 
-            raw_384 = {
-                'train': debias_dataset(backbone, projector, train_data, args.batch_size, device),
-                'test': debias_dataset(backbone, projector, test_data, args.batch_size, device),
-                'test_old': debias_dataset(backbone, projector, test_old_data, args.batch_size, device),
-                'test_all': debias_dataset(backbone, projector, test_all_data, args.batch_size, device),
-                'known_test': debias_dataset(backbone, projector, known_test_data, args.batch_size, device),
-            }
+            # Training data
+            debiased_features = debias_dataset(backbone, projector, train_data, args.batch_size, device)
 
-            # Standardize + PCA reduce: 384 → num_dim
-            reduced, stage_num_dim, feature_reducer = reduce_features(
-                raw_384,
-                args.num_dim,
-                feature_reducer
-            )
-            if stage_num_dim != effective_num_dim:
-                raise ValueError(
-                    f"Feature dimension changed from {effective_num_dim} to {stage_num_dim}"
-                )
+            # All test sets — must be in the same debiased space
+            debiased_test = debias_dataset(backbone, projector, test_data, args.batch_size, device)
+            debiased_test_old = debias_dataset(backbone, projector, test_old_data, args.batch_size, device)
+            debiased_test_all = debias_dataset(backbone, projector, test_all_data, args.batch_size, device)
+            debiased_known_test = debias_dataset(backbone, projector, known_test_data, args.batch_size, device)
 
-            # ==============================================================
-            # Clustering in reduced feature space
-            # ==============================================================
+            # Standardize: zero mean + unit variance per dimension.
+            # This mirrors what PCA does for Stage 0, making identity covariance
+            # a valid initialization and preventing float32 det underflow.
+            from sklearn.preprocessing import StandardScaler
+            scaler = StandardScaler()
+            debiased_features = scaler.fit_transform(debiased_features)
+            debiased_test = scaler.transform(debiased_test)
+            debiased_test_old = scaler.transform(debiased_test_old)
+            debiased_test_all = scaler.transform(debiased_test_all)
+            debiased_known_test = scaler.transform(debiased_known_test)
+            # ==============================================================================
+            # END: ACTIVE REPRESENTATION LEARNING LOOP
+            # ==============================================================================
+
             clustering = Clustering(num_classes=args.increment, label_offset=label_offset)
+
             print("Clustering novel classes:", args.increment, "Offset:", label_offset)
             
+            # Separate old (replay buffer) and novel data
             novel_mask = train_data._y >= label_offset
+            old_mask = ~novel_mask
             
-            novel_features = reduced['train'][novel_mask]
-            clustering.fit(novel_features)
-            novel_pred = clustering.predict(novel_features, train_data._y[novel_mask], with_known=False)
+            # 1. Fit clustering ONLY on the highly-separated Debiased Latent Space of NOVEL samples
+            novel_debiased_features = debiased_features[novel_mask]
+            clustering.fit(novel_debiased_features)
 
+            # 2. Predict pseudo-labels ONLY for novel features
+            novel_pred = clustering.predict(novel_debiased_features, train_data._y[novel_mask], with_known=False)
+
+            # 3. Construct the perfect pred array! 
+            # Replay buffer gets true old labels. Novel data gets clustering pseudo-labels!
             pred = np.copy(train_data._y)
             pred[novel_mask] = novel_pred
+
             print("Combined Pred Unique Counts:", np.unique(pred, return_counts=True))
 
-            # ==============================================================
-            # Preserve old params; initialize/update only the new class params.
-            # ==============================================================
+            # ==============================================================================
+            # Re-initialize global_params in the standardized debiased feature space.
+            # Identity covariance is appropriate because features are standardized
+            # (zero mean, unit variance) — same property that PCA gives Stage 0.
+            # det(I) = 1, trivially PD, no float32 underflow.
+            # ==============================================================================
             if s_classifier.global_params is not None:
-                try:
-                    s_classifier.global_params = update_class_params(
-                        s_classifier.global_params,
-                        reduced['train'],
-                        pred.astype(int),
-                        range(label_offset, label_offset + args.increment),
-                        effective_num_dim,
-                    )
-                    print(
-                        f"Preserved old global_params; updated novel classes "
-                        f"{label_offset}-{label_offset + args.increment - 1} "
-                        f"(dim={effective_num_dim})"
-                    )
-                except ValueError as exc:
-                    print(
-                        f"global_params incompatible ({exc}); recomputing all class "
-                        f"params in fixed PCA space"
-                    )
-                    s_classifier.global_params = compute_class_init_params(
-                        reduced['train'],
-                        pred.astype(int),
-                        args.num_classes,
-                        effective_num_dim,
-                    )
-                s_classifier.pca = None
-                s_classifier.num_dim = effective_num_dim
+                old_debiased = debiased_features[old_mask]
+                old_labels = train_data._y[old_mask]
+                num_dim = debiased_features.shape[1]
 
+                new_means = np.zeros((s_classifier.num_classes, num_dim))
+                new_covs = np.stack([np.eye(num_dim)] * s_classifier.num_classes)
+
+                for c in range(label_offset):
+                    c_mask = old_labels == c
+                    if c_mask.sum() > 0:
+                        new_means[c] = old_debiased[c_mask].mean(axis=0)
+
+                s_classifier.global_params = {
+                    'class_means': jnp.array(new_means, dtype=jnp.float32),
+                    'class_covs': jnp.array(new_covs, dtype=jnp.float32)
+                }
+                s_classifier.pca = None  # Debiased features are already 384-dim
+                print(f"Re-initialized global_params for {label_offset} old classes in debiased space")
+
+            # for ngmm merge
             s_classifier._set_label_offset(label_offset)
-            s_classifier.update_dir_infos(
-                log_dir=f"logs/{log_saved_dir}/log/stage{i}",
-                save_dir=f"logs/{log_saved_dir}/saved_models/stage{i}"
-            )
 
+            s_classifier.update_dir_infos(log_dir=f"logs/{log_saved_dir}/log/stage{i}", save_dir=f"logs/{log_saved_dir}/saved_models/stage{i}")
+
+            # Build testing_set with debiased features
             testing_set = {
-                'test_old': SimpleData(reduced['test_old'], test_old_data._y),
-                'test_all': SimpleData(reduced['test_all'], test_all_data._y),
-                'known_test': SimpleData(reduced['known_test'], known_test_data._y)
+                'test_old': SimpleData(debiased_test_old, test_old_data._y),
+                'test_all': SimpleData(debiased_test_all, test_all_data._y),
+                'known_test': SimpleData(debiased_known_test, known_test_data._y)
             }
 
-            s_classifier.run(
-                reduced['train'], pred,
-                reduced['test'], test_data._y,
-                current_stage=i, testing_set=testing_set
-            )
+            # Train and evaluate in the unified debiased feature space
+            s_classifier.run(debiased_features, pred, debiased_test, test_data._y, current_stage=i, testing_set=testing_set)

@@ -1,231 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# @Author: Truong An Khang
 
 import argparse
-import json
 import os
-from collections import defaultdict
-from pathlib import Path
 
 import numpy as np
 import torch
 import torchvision
-from PIL import Image
-from torch.utils.data import Dataset, DataLoader
-
-from sl_finetuned_model import finetune_dino
 
 
-GC10DET_CLASSES = [
-    "punching_hole",
-    "welding_line",
-    "crescent_gap",
-    "water_spot",
-    "oil_spot",
-    "silk_spot",
-    "inclusion",
-    "rolled_pit",
-    "crease",
-    "waist_folding",
-]
+class SafeImageFolder(torchvision.datasets.ImageFolder):
+        def find_classes(self, dir: str):
+            classes, class_to_idx = super().find_classes(dir)
+            # Nếu thấy folder 'lable' thì chủ động xóa tên khỏi danh sách lớp
+            if 'lable' in classes:
+                classes.remove('lable')
+                if 'lable' in class_to_idx:
+                    del class_to_idx['lable']
+            return classes, class_to_idx
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
-
-
-class GC10DETDataset(Dataset):
-    def __init__(self, samples, transform):
-        self.samples = samples
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, idx):
-        image_path, label = self.samples[idx]
-        image = Image.open(image_path).convert("RGB")
-        return {"images": self.transform(image), "labels": torch.tensor(label, dtype=torch.long)}
-
-
-def normalize_class_name(name):
-    return str(name).strip().lower().replace(" ", "_").replace("-", "_")
-
-
-def find_image_files(root):
-    return sorted([p for p in root.rglob("*") if p.suffix.lower() in IMAGE_EXTENSIONS])
-
-
-def extract_class_from_json(value):
-    if isinstance(value, dict):
-        for key in ("classTitle", "class", "label", "category", "category_name", "name"):
-            if key in value and isinstance(value[key], str):
-                return value[key]
-        for key in ("objects", "annotations", "shapes"):
-            objects = value.get(key)
-            if isinstance(objects, list) and objects:
-                return extract_class_from_json(objects[0])
-        for nested in value.values():
-            result = extract_class_from_json(nested)
-            if result is not None:
-                return result
-    elif isinstance(value, list) and value:
-        return extract_class_from_json(value[0])
-    return None
-
-
-def find_matching_annotation(image_path, ann_dir):
-    candidates = [
-        ann_dir / f"{image_path.name}.json",
-        ann_dir / f"{image_path.stem}.json",
-        ann_dir / image_path.with_suffix(".json").name,
-    ]
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    matches = list(ann_dir.rglob(f"{image_path.name}.json")) + list(ann_dir.rglob(f"{image_path.stem}.json"))
-    return matches[0] if matches else None
-
-
-def samples_from_annotations(root):
-    ann_dirs = [p for p in root.rglob("*") if p.is_dir() and p.name.lower() in {"ann", "anns", "annotations"}]
-    if not ann_dirs:
-        return []
-
-    ann_dir = ann_dirs[0]
-    samples = []
-    for image_path in find_image_files(root):
-        if ann_dir in image_path.parents:
-            continue
-        ann_path = find_matching_annotation(image_path, ann_dir)
-        if ann_path is None:
-            continue
-        with ann_path.open("r", encoding="utf-8") as f:
-            annotation = json.load(f)
-        class_name = extract_class_from_json(annotation)
-        if class_name is not None:
-            samples.append((str(image_path.resolve()), normalize_class_name(class_name)))
-    return samples
-
-
-def samples_from_class_folders(root):
-    samples = []
-    for class_dir in sorted([p for p in root.iterdir() if p.is_dir()]):
-        image_files = [p for p in class_dir.rglob("*") if p.suffix.lower() in IMAGE_EXTENSIONS]
-        for image_path in image_files:
-            samples.append((str(image_path.resolve()), normalize_class_name(class_dir.name)))
-    return samples
-
-
-def load_gc10det_samples(raw_data_dir):
-    root = Path(raw_data_dir)
-    if not root.exists():
-        raise FileNotFoundError(f"GC10-DET raw data directory does not exist: {root}")
-
-    samples = samples_from_annotations(root)
-    source = "annotations"
-    if not samples:
-        samples = samples_from_class_folders(root)
-        source = "class folders"
-    if not samples:
-        raise ValueError(
-            "Could not discover GC10-DET samples. Expected an ann/annotations folder "
-            "with JSON files, or class-named folders containing images."
-        )
-
-    discovered = sorted({label for _, label in samples})
-    known_order = [c for c in GC10DET_CLASSES if c in discovered]
-    class_names = known_order + [c for c in discovered if c not in known_order]
-    class_counts = {
-        class_name: sum(1 for _, label in samples if label == class_name)
-        for class_name in class_names
-    }
-    
-    class_to_idx = {class_name: idx for idx, class_name in enumerate(class_names)}
-
-    indexed_samples = [(path, class_to_idx[label]) for path, label in samples if label in class_to_idx]
-    print(
-        f"root = {root.resolve()}\n"
-        f"source = {source}\n"
-        f"class_counts = {class_counts}\n"
-        f"num_images = {len(indexed_samples)}"
-    )
-    return indexed_samples, class_names
-
-
-def stratified_split(samples, test_ratio, seed):
-    rng = np.random.default_rng(seed)
-    by_class = defaultdict(list)
-    for sample in samples:
-        by_class[sample[1]].append(sample)
-
-    train_samples = []
-    test_samples = []
-    for label in sorted(by_class):
-        class_samples = by_class[label]
-        rng.shuffle(class_samples)
-        n_test = max(1, int(round(len(class_samples) * test_ratio)))
-        n_test = min(n_test, len(class_samples) - 1)
-        test_samples.extend(class_samples[:n_test])
-        train_samples.extend(class_samples[n_test:])
-
-    rng.shuffle(train_samples)
-    rng.shuffle(test_samples)
-    return train_samples, test_samples
-
-
-def build_transform():
-    interpolation = 3
-    crop_pct = 0.875
-    mean = (0.485, 0.456, 0.406)
-    std = (0.229, 0.224, 0.225)
-    image_size = 224
-    return torchvision.transforms.Compose([
-        torchvision.transforms.Resize(int(image_size / crop_pct), interpolation),
-        torchvision.transforms.CenterCrop(image_size),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize(mean=torch.tensor(mean), std=torch.tensor(std)),
-    ])
-
-
-def load_dino_model(args, train_dataset, num_classes):
-    if not args.finetuned:
-        if args.model == "dinov2_vits14":
-            dino = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
-        elif args.model == "dinov2_vitb14":
-            dino = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitb14')
-        elif args.model == "dino_vitb16":
-            dino = torch.hub.load('facebookresearch/dino:main', 'dino_vitb16')
-        elif args.model == "dino_vitb8":
-            dino = torch.hub.load('facebookresearch/dino:main', 'dino_vitb8')
-        elif args.model == "dino_vits16":
-            dino = torch.hub.load('facebookresearch/dino:main', 'dino_vits16')
-        else:
-            raise ValueError("Model not supported")
-        return dino, args.model.replace("_", "-")
-
-    labeled_samples = [sample for sample in train_dataset.samples if sample[1] < args.labeled_classes]
-    finetune_dataset = GC10DETDataset(labeled_samples, train_dataset.transform)
-    dino = finetune_dino(finetune_dataset, num_classes, model_name=args.model)
-    return dino, args.model.replace("_", "-") + "-sl"
-
-
-def infer_features_labels(dino, data_loader, features_dir, labels_dir, device, args):
+def infer_features_labels(dino, data_loader, features_dir, labels_dir, device):
     dino.to(device)
     dino.eval()
 
     os.makedirs(features_dir, exist_ok=True)
     os.makedirs(labels_dir, exist_ok=True)
 
-    for bidx, batch in enumerate(data_loader):
-        images = batch["images"].to(device)
-        if args.finetuned:
-            features = dino(images).pooler_output
-        else:
+    # Đọc batch dạng tuple (images, labels) chuẩn PyTorch DataLoader
+    for bidx, (images, labels) in enumerate(data_loader):
+        images = images.to(device)
+
+        with torch.no_grad():
             features = dino(images)
+
         np.save(f"{features_dir}/features_{bidx}", features.cpu().data)
-        np.save(f"{labels_dir}/labels_{bidx}", batch["labels"].cpu().data)
+        np.save(f"{labels_dir}/labels_{bidx}", labels.cpu().data)
 
 
 def merge_npy(features_dir, labels_dir, prefix, model_name, output_dir):
+    # Lấy danh sách các file batch đã lưu và sắp xếp theo thứ tự
     feature_files = sorted([os.path.join(features_dir, f) for f in os.listdir(features_dir) if f.endswith('.npy')])
     label_files = sorted([os.path.join(labels_dir, f) for f in os.listdir(labels_dir) if f.endswith('.npy')])
 
@@ -235,103 +49,108 @@ def merge_npy(features_dir, labels_dir, prefix, model_name, output_dir):
         arrays = [np.load(f) for f in files]
         return np.concatenate(arrays, axis=0)
 
-    os.makedirs(f"{output_dir}/{model_name}", exist_ok=True)
-    np.save(f"{output_dir}/{model_name}/{prefix['feature']}-{model_name}.npy", merged_array(feature_files))
-    np.save(f"{output_dir}/{model_name}/{prefix['label']}-{model_name}.npy", merged_array(label_files))
-
-
-def save_image_paths(samples, output_dir, model_name, prefix):
-    os.makedirs(f"{output_dir}/{model_name}", exist_ok=True)
-    paths = np.array([sample[0] for sample in samples])
-    np.save(f"{output_dir}/{model_name}/{prefix}_images-{model_name}.npy", paths)
+    target_dir = f"{output_dir}/gc10-det"
+    os.makedirs(target_dir, exist_ok=True)
+    
+    # Lưu file gộp cuối cùng theo đúng định dạng tên mô hình
+    np.save(f"{target_dir}/{prefix['feature']}-{model_name}.npy", merged_array(feature_files))
+    np.save(f"{target_dir}/{prefix['label']}-{model_name}.npy", merged_array(label_files))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DINO Inference on GC10-DET')
-    parser.add_argument('--dataset_path', type=str, help='Directory of the extracted Kaggle GC10-DET dataset')
-    parser.add_argument('--raw_data_dir', type=str, help='Deprecated alias for --dataset_path')
-    parser.add_argument('--device', default='cuda', type=str, help='Device on which to run')
-    parser.add_argument('--num-workers', default=8, type=int, help='Number of dataloader workers')
-    parser.add_argument('--batch-size', default=128, type=int, help='batch size')
-    parser.add_argument('--seed', default=42, type=int, help='random seed')
-    parser.add_argument("--model", default="dino_vitb16", type=str, help="Model name")
-    parser.add_argument("--output_dir", default="datasets/gc10det", type=str, help="Output directory")
-    parser.add_argument("--finetuned", action='store_true', help='Finetuned model')
-    parser.add_argument("--labeled_classes", default=5, type=int, help="Number of labeled classes for supervised fine-tuning")
-    parser.add_argument("--test_ratio", default=0.2, type=float, help="Per-class test split ratio")
-    args = parser.parse_args()
 
-    if args.dataset_path is None:
-        args.dataset_path = args.raw_data_dir
-    if args.dataset_path is None:
-        parser.error("one of --dataset_path or --raw_data_dir is required")
+    parser.add_argument(
+        '--device',
+        default='cuda' if torch.cuda.is_available() else 'cpu',
+        type=str,
+        help='Device on which to run (cuda, mps, cpu)'
+    )
+    parser.add_argument('--data_dir', default='GC10-DET', type=str, help='Path to GC10-DET root folder')
+    parser.add_argument('--num-workers', default=4, type=int, help='Number of dataloader workers')
+    parser.add_argument('--batch-size', default=16, type=int, help='Batch size')
+    parser.add_argument('--seed', default=42, type=int, help='Random seed')
+    parser.add_argument("--model", default="dino_vitb16", type=str, help="Model name")
+    parser.add_argument("--output_dir", default="output-features", type=str, help="Output directory")
+    parser.add_argument("--finetuned", action='store_true', help='Finetuned model')
+    parser.add_argument("--labeled_classes", default=50, type=int, help="Number of labeled classes")
+
+    args = parser.parse_args()
 
     if args.seed != 0:
         torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
 
-    samples, class_names = load_gc10det_samples(args.dataset_path)
-    if len(class_names) != 10:
-        print(f"Warning: expected 10 GC10-DET classes, discovered {len(class_names)}: {class_names}")
+    # Cấu hình bộ tiền xử lý ảnh chuẩn kiến trúc mạng ViT (Bicubic Resize & Normalization)
+    interpolation = 3  # Bicubic
+    crop_pct = 0.875
+    image_size = 224
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+    
+    train_transforms = torchvision.transforms.Compose([
+        torchvision.transforms.Resize(int(image_size / crop_pct), interpolation),
+        torchvision.transforms.CenterCrop(image_size),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(mean=torch.tensor(mean), std=torch.tensor(std))
+    ])
 
-    train_samples, test_samples = stratified_split(samples, args.test_ratio, args.seed)
-    print(
-        f"test_ratio = {args.test_ratio}\n"
-        f"seed = {args.seed}\n"
-        f"train_samples = {len(train_samples)}\n"
-        f"test_samples = {len(test_samples)}"
-    )
-    transform = build_transform()
-    train_dataset = GC10DETDataset(train_samples, transform)
-    test_dataset = GC10DETDataset(test_samples, transform)
+    # 1. Đọc toàn bộ dữ liệu ảnh từ cấu hình thư mục (1 -> 10)
+    # print(f"[+] Đang nạp dữ liệu từ thư mục: {args.data_dir}")
+    # full_dataset = torchvision.datasets.ImageFolder(root=args.data_dir, transform=train_transforms)
+    # Định nghĩa một lớp bọc nhỏ để chủ động lọc bỏ folder 'lable'
+    
 
-    dino, model_name = load_dino_model(args, train_dataset, num_classes=len(class_names))
+    print(f"[+] Đang nạp dữ liệu từ thư mục: {args.data_dir}")
+    # Đổi hàm ImageFolder gốc thành SafeImageFolder vừa tạo
+    full_dataset = SafeImageFolder(root=args.data_dir, transform=train_transforms)
+    
+    # 2. Thực hiện phân chia tỷ lệ ngẫu nhiên cố định bằng Seed (80% Train, 20% Test)
+    train_size = int(0.8 * len(full_dataset))
+    test_size = len(full_dataset) - train_size
+    generator = torch.Generator().manual_seed(args.seed)
+    train_dataset, valid_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size], generator=generator)
 
-    os.makedirs(args.output_dir, exist_ok=True)
-    with open(f"{args.output_dir}/class_to_idx.json", "w", encoding="utf-8") as f:
-        json.dump({name: idx for idx, name in enumerate(class_names)}, f, indent=2)
+    # 3. Tạo DataLoaders cho hai tập
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    test_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        num_workers=args.num_workers,
-    )
-    infer_features_labels(
-        dino,
-        train_loader,
-        f"{args.output_dir}/{args.model}_features",
-        f"{args.output_dir}/{args.model}_labels",
-        args.device,
-        args,
-    )
-    merge_npy(
-        f"{args.output_dir}/{args.model}_features",
-        f"{args.output_dir}/{args.model}_labels",
-        {"feature": "features", "label": "labels"},
-        model_name,
-        args.output_dir,
-    )
-    save_image_paths(train_samples, args.output_dir, model_name, "train")
+    # 4. Tải kiến trúc mạng tự giám sát DINO tương ứng
+    print(f"[+] Đang tải mô hình backbone: {args.model}")
+    if args.model == "dinov2_vits14":
+        dino = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
+    elif args.model == "dinov2_vitb14":
+        dino = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitb14')
+    elif args.model == "dino_vitb16":
+        dino = torch.hub.load('facebookresearch/dino:main', 'dino_vitb16')
+    elif args.model == "dino_vitb8":
+        dino = torch.hub.load('facebookresearch/dino:main', 'dino_vitb8')
+    elif args.model == "dino_vits16":
+        dino = torch.hub.load('facebookresearch/dino:main', 'dino_vits16')
+    else:
+        raise ValueError("Model not supported")
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=args.batch_size,
-        shuffle=False,
-        num_workers=args.num_workers,
-    )
-    infer_features_labels(
-        dino,
-        test_loader,
-        f"{args.output_dir}/{args.model}_test_features",
-        f"{args.output_dir}/{args.model}_test_labels",
-        args.device,
-        args,
-    )
-    merge_npy(
-        f"{args.output_dir}/{args.model}_test_features",
-        f"{args.output_dir}/{args.model}_test_labels",
-        {"feature": "test_features", "label": "test_labels"},
-        model_name,
-        args.output_dir,
-    )
-    save_image_paths(test_samples, args.output_dir, model_name, "test")
+    model_name = args.model.replace("_", "-")
+
+    # --- TIẾN HÀNH TRÍCH XUẤT TẬP TRAIN ---
+    # --- TIẾN HÀNH TRÍCH XUẤT TẬP TRAIN ---
+    print("[->] Đang trích xuất đặc trưng tập TRAIN...")
+    # SỬA Ở ĐÂY: Ép các thư mục batch tạm chui hết vào trong folder gc10-det
+    features_dir = f"{args.output_dir}/gc10-det/{args.model}_features"
+    labels_dir = f"{args.output_dir}/gc10-det/{args.model}_labels"
+    
+    infer_features_labels(dino, train_loader, features_dir, labels_dir, args.device)
+    merge_npy(features_dir, labels_dir, {"feature": "features", "label": "labels"}, model_name, f"{args.output_dir}/gc10-det")
+
+    # --- TIẾN HÀNH TRÍCH XUẤT TẬP TEST ---
+    print("[->] Đang trích xuất đặc trưng tập TEST...")
+    # SỬA Ở ĐÂY: Ép các thư mục batch tạm chui hết vào trong folder gc10-det
+    features_dir = f"{args.output_dir}/gc10-det/{args.model}_test_features"
+    labels_dir = f"{args.output_dir}/gc10-det/{args.model}_test_labels"
+    
+    infer_features_labels(dino, test_loader, features_dir, labels_dir, args.device)
+    # merge_npy(features_dir, labels_dir, {"feature": "test_features", "label": "test_labels"}, model_name, f"{args.output_dir}/gc10-det")
+    merge_npy(features_dir, labels_dir, {"feature": "test_features", "label": "test_labels"}, model_name, args.output_dir)
+
+
+    print(f"[===] HOÀN THÀNH BIÊN DỊCH! Các file .npy đã sẵn sàng tại: {args.output_dir}/gc10-det/")
