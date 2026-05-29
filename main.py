@@ -110,12 +110,75 @@ def debias_dataset(backbone, projector, data_obj, batch_size, device):
     return np.concatenate(feats, axis=0)
 
 
-def reduce_features(features_dict, num_dim):
-    """Standardize + PCA reduce a dict of feature arrays.
-    
-    Fits StandardScaler and PCA on 'train', transforms all others.
-    Returns (reduced_dict, effective_dim).
-    """
+class FixedFeatureReducer:
+    """Fit preprocessing once, then reuse it for all incremental stages."""
+
+    def __init__(self, requested_dim):
+        from sklearn.decomposition import PCA
+        from sklearn.preprocessing import StandardScaler
+
+        self.requested_dim = requested_dim
+        self.scaler = StandardScaler()
+        self.pca_cls = PCA
+        self.pca = None
+        self.n_components = None
+
+    def fit_transform(self, features_dict):
+        train_f = self.scaler.fit_transform(features_dict['train'])
+        self.n_components = min(
+            self.requested_dim,
+            train_f.shape[0] - 1,
+            train_f.shape[1],
+        )
+        if self.n_components < 1:
+            raise ValueError(
+                f"Need at least 2 training samples for PCA, got {train_f.shape[0]}"
+            )
+        if self.n_components < self.requested_dim:
+            print(
+                f"Capping PCA components: {self.requested_dim} -> {self.n_components} "
+                f"(samples={train_f.shape[0]}, raw_dim={train_f.shape[1]})"
+            )
+
+        self.pca = self.pca_cls(n_components=self.n_components)
+        train_f = self.pca.fit_transform(train_f)
+        print(
+            f"Feature pipeline: 384 -> fixed standardize -> fixed PCA "
+            f"{self.n_components}d "
+            f"(explained variance: {self.pca.explained_variance_ratio_.sum():.2%})"
+        )
+        return self._transform_rest(features_dict, train_f)
+
+    def transform(self, features_dict):
+        if self.pca is None:
+            raise ValueError("FixedFeatureReducer must be fit before transform")
+        train_f = self.pca.transform(self.scaler.transform(features_dict['train']))
+        print(
+            f"Feature pipeline: 384 -> reused standardize -> reused PCA "
+            f"{self.n_components}d"
+        )
+        return self._transform_rest(features_dict, train_f)
+
+    def _transform_rest(self, features_dict, train_f):
+        result = {'train': train_f}
+        for key, val in features_dict.items():
+            if key != 'train':
+                result[key] = self.pca.transform(self.scaler.transform(val))
+        return result
+
+
+def reduce_features(features_dict, num_dim, reducer=None):
+    """Standardize + PCA reduce features with a stage-stable projection."""
+    if reducer is None:
+        reducer = FixedFeatureReducer(num_dim)
+        reduced = reducer.fit_transform(features_dict)
+    else:
+        reduced = reducer.transform(features_dict)
+    return reduced, reducer.n_components, reducer
+
+
+def _legacy_reduce_features(features_dict, num_dim):
+    """Old per-stage reducer kept only as a reference for experiments."""
     from sklearn.preprocessing import StandardScaler
     from sklearn.decomposition import PCA
 
@@ -159,6 +222,34 @@ def compute_class_init_params(features, labels, num_classes, num_dim):
                 alpha = max(0.3, 1.0 - c_mask.sum() / (2 * num_dim))
                 covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(num_dim)
     
+    return {
+        'class_means': jnp.array(means, dtype=jnp.float32),
+        'class_covs': jnp.array(covs, dtype=jnp.float32),
+    }
+
+
+def update_class_params(params, features, labels, class_ids, num_dim):
+    """Update selected classes from current data while preserving all others."""
+    means = np.array(params['class_means'])
+    covs = np.array(params['class_covs'])
+
+    if means.shape[1] != num_dim or covs.shape[1:] != (num_dim, num_dim):
+        raise ValueError(
+            f"global_params dim {means.shape[1]} is incompatible with feature dim {num_dim}"
+        )
+
+    for c in class_ids:
+        c_mask = labels == c
+        if c_mask.sum() > 0:
+            c_data = features[c_mask]
+            means[c] = c_data.mean(axis=0)
+            if c_mask.sum() > 1:
+                sample_cov = np.cov(c_data, rowvar=False)
+                alpha = max(0.3, 1.0 - c_mask.sum() / (2 * num_dim))
+                covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(num_dim)
+            else:
+                covs[c] = np.eye(num_dim)
+
     return {
         'class_means': jnp.array(means, dtype=jnp.float32),
         'class_covs': jnp.array(covs, dtype=jnp.float32),
@@ -273,8 +364,9 @@ if __name__ == '__main__':
     optimizer_proj = torch.optim.AdamW(projector.parameters(), lr=1e-3, weight_decay=1e-4)
     debiased_loss_fn = Debiased_Representation_Loss(feature_dim=384, hidden_dim=128).to(device)
 
-    # effective_num_dim will be set after PCA reduction (may be < args.num_dim)
+    # effective_num_dim is fixed after stage 0 so MNGMM params stay reusable.
     effective_num_dim = None
+    feature_reducer = None
 
     for i, (train_data, test_data, test_old_data, test_all_data) in enumerate(zip(train_loader, test_loader, test_old_loader, test_all_loader)): 
         if i == 0:
@@ -328,9 +420,10 @@ if __name__ == '__main__':
             raw_384_test = debias_dataset(backbone, projector, test_data, args.batch_size, device)
 
             # Standardize + PCA reduce: 384 → num_dim
-            reduced, effective_num_dim = reduce_features(
+            reduced, effective_num_dim, feature_reducer = reduce_features(
                 {'train': raw_384_train, 'test': raw_384_test},
-                args.num_dim
+                args.num_dim,
+                feature_reducer
             )
 
             # Create classifier with the ACTUAL reduced dimension
@@ -430,7 +523,15 @@ if __name__ == '__main__':
             }
 
             # Standardize + PCA reduce: 384 → num_dim
-            reduced, effective_num_dim = reduce_features(raw_384, args.num_dim)
+            reduced, stage_num_dim, feature_reducer = reduce_features(
+                raw_384,
+                args.num_dim,
+                feature_reducer
+            )
+            if stage_num_dim != effective_num_dim:
+                raise ValueError(
+                    f"Feature dimension changed from {effective_num_dim} to {stage_num_dim}"
+                )
 
             # ==============================================================
             # Clustering in reduced feature space
@@ -439,7 +540,6 @@ if __name__ == '__main__':
             print("Clustering novel classes:", args.increment, "Offset:", label_offset)
             
             novel_mask = train_data._y >= label_offset
-            old_mask = ~novel_mask
             
             novel_features = reduced['train'][novel_mask]
             clustering.fit(novel_features)
@@ -450,44 +550,35 @@ if __name__ == '__main__':
             print("Combined Pred Unique Counts:", np.unique(pred, return_counts=True))
 
             # ==============================================================
-            # Re-initialize global_params with data-driven statistics
+            # Preserve old params; initialize/update only the new class params.
             # ==============================================================
             if s_classifier.global_params is not None:
-                old_feats = reduced['train'][old_mask]
-                old_labels = train_data._y[old_mask]
-
-                new_means = np.zeros((s_classifier.num_classes, effective_num_dim))
-                new_covs = np.stack([np.eye(effective_num_dim)] * s_classifier.num_classes)
-
-                for c in range(label_offset):
-                    c_mask = old_labels == c
-                    if c_mask.sum() > 0:
-                        c_data = old_feats[c_mask]
-                        new_means[c] = c_data.mean(axis=0)
-                        if c_mask.sum() > 1:
-                            sample_cov = np.cov(c_data, rowvar=False)
-                            alpha = max(0.3, 1.0 - c_mask.sum() / (2 * effective_num_dim))
-                            new_covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(effective_num_dim)
-
-                for c_idx in range(args.increment):
-                    c = label_offset + c_idx
-                    c_mask = pred[novel_mask] == c
-                    if c_mask.sum() > 0:
-                        c_data = novel_features[c_mask]
-                        new_means[c] = c_data.mean(axis=0)
-                        if c_mask.sum() > 1:
-                            sample_cov = np.cov(c_data, rowvar=False)
-                            alpha = max(0.3, 1.0 - c_mask.sum() / (2 * effective_num_dim))
-                            new_covs[c] = (1 - alpha) * sample_cov + alpha * np.eye(effective_num_dim)
-
-                s_classifier.global_params = {
-                    'class_means': jnp.array(new_means, dtype=jnp.float32),
-                    'class_covs': jnp.array(new_covs, dtype=jnp.float32)
-                }
+                try:
+                    s_classifier.global_params = update_class_params(
+                        s_classifier.global_params,
+                        reduced['train'],
+                        pred.astype(int),
+                        range(label_offset, label_offset + args.increment),
+                        effective_num_dim,
+                    )
+                    print(
+                        f"Preserved old global_params; updated novel classes "
+                        f"{label_offset}-{label_offset + args.increment - 1} "
+                        f"(dim={effective_num_dim})"
+                    )
+                except ValueError as exc:
+                    print(
+                        f"global_params incompatible ({exc}); recomputing all class "
+                        f"params in fixed PCA space"
+                    )
+                    s_classifier.global_params = compute_class_init_params(
+                        reduced['train'],
+                        pred.astype(int),
+                        args.num_classes,
+                        effective_num_dim,
+                    )
                 s_classifier.pca = None
-                # Update num_dim in case it changed
                 s_classifier.num_dim = effective_num_dim
-                print(f"Re-initialized global_params for {label_offset} old + {args.increment} novel classes (dim={effective_num_dim})")
 
             s_classifier._set_label_offset(label_offset)
             s_classifier.update_dir_infos(
