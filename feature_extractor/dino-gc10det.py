@@ -121,8 +121,10 @@ def load_gc10det_samples(raw_data_dir):
         raise FileNotFoundError(f"GC10-DET raw data directory does not exist: {root}")
 
     samples = samples_from_annotations(root)
+    source = "annotations"
     if not samples:
         samples = samples_from_class_folders(root)
+        source = "class folders"
     if not samples:
         raise ValueError(
             "Could not discover GC10-DET samples. Expected an ann/annotations folder "
@@ -132,9 +134,20 @@ def load_gc10det_samples(raw_data_dir):
     discovered = sorted({label for _, label in samples})
     known_order = [c for c in GC10DET_CLASSES if c in discovered]
     class_names = known_order + [c for c in discovered if c not in known_order]
+    class_counts = {
+        class_name: sum(1 for _, label in samples if label == class_name)
+        for class_name in class_names
+    }
+    
     class_to_idx = {class_name: idx for idx, class_name in enumerate(class_names)}
 
     indexed_samples = [(path, class_to_idx[label]) for path, label in samples if label in class_to_idx]
+    print(
+        f"root = {root.resolve()}\n"
+        f"source = {source}\n"
+        f"class_counts = {class_counts}\n"
+        f"num_images = {len(indexed_samples)}"
+    )
     return indexed_samples, class_names
 
 
@@ -261,6 +274,12 @@ if __name__ == '__main__':
         print(f"Warning: expected 10 GC10-DET classes, discovered {len(class_names)}: {class_names}")
 
     train_samples, test_samples = stratified_split(samples, args.test_ratio, args.seed)
+    print(
+        f"test_ratio = {args.test_ratio}\n"
+        f"seed = {args.seed}\n"
+        f"train_samples = {len(train_samples)}\n"
+        f"test_samples = {len(test_samples)}"
+    )
     transform = build_transform()
     train_dataset = GC10DETDataset(train_samples, transform)
     test_dataset = GC10DETDataset(test_samples, transform)

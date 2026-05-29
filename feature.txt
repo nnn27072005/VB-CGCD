@@ -1,9 +1,9 @@
 !python feature_extractor/dino-gc10det.py --dataset_path /kaggle/input/datasets/alex000kim/gc10det --finetuned --output_dir datasets/gc10det --batch-size 16
 
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-config.json: 100%|█████████████████████████████| 454/454 [00:00<00:00, 2.07MB/s]
-model.safetensors: 100%|█████████████████████| 343M/343M [00:04<00:00, 70.8MB/s]
-Loading weights: 100%|█| 198/198 [00:00<00:00, 2034.84it/s, Materializing param=
+config.json: 100%|█████████████████████████████| 454/454 [00:00<00:00, 3.03MB/s]
+model.safetensors: 100%|█████████████████████| 343M/343M [00:04<00:00, 77.3MB/s]
+Loading weights: 100%|█| 198/198 [00:00<00:00, 2451.00it/s, Materializing param=
 ViTModel LOAD REPORT from: facebook/dino-vitb16
 Key                 | Status  | 
 --------------------+---------+-
@@ -13,96 +13,96 @@ pooler.dense.bias   | MISSING |
 Notes:
 - MISSING	:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.
 trainable params: 294,912 || all params: 86,684,160 || trainable%: 0.3402
-<__main__.GC10DETDataset object at 0x797aa5063380>
+<__main__.GC10DETDataset object at 0x7c184b7ee6f0>
 0it [00:00, ?it/s]Epoch 0, Loss: 2.6528711318969727
-1it [00:09,  9.45s/it]Epoch 0, Loss: 2.1244382858276367
-2it [00:12,  5.53s/it]Epoch 0, Loss: 1.7562708854675293
-3it [00:15,  4.72s/it]Epoch 0, Loss: 1.566710352897644
-4it [00:18,  3.98s/it]Epoch 0, Loss: 1.329633116722107
-5it [00:22,  3.95s/it]Epoch 0, Loss: 1.1466947793960571
-6it [00:25,  3.58s/it]Epoch 0, Loss: 1.1171737909317017
-7it [00:28,  3.49s/it]Epoch 0, Loss: 1.1439229249954224
-8it [00:29,  3.70s/it]
-0it [00:00, ?it/s]Epoch 1, Loss: 0.9335493445396423
-1it [00:07,  7.41s/it]Epoch 1, Loss: 0.8097753524780273
-2it [00:10,  4.77s/it]Epoch 1, Loss: 0.7065449953079224
-3it [00:13,  4.22s/it]Epoch 1, Loss: 0.7358012795448303
-4it [00:16,  3.73s/it]Epoch 1, Loss: 0.6768859028816223
-5it [00:20,  3.80s/it]Epoch 1, Loss: 0.6950127482414246
-6it [00:23,  3.53s/it]Epoch 1, Loss: 0.6083700656890869
-7it [00:26,  3.38s/it]Epoch 1, Loss: 0.8438724875450134
-8it [00:27,  3.45s/it]
-0it [00:00, ?it/s]Epoch 2, Loss: 0.5348829030990601
-1it [00:07,  7.71s/it]Epoch 2, Loss: 0.6021637916564941
-2it [00:10,  4.97s/it]Epoch 2, Loss: 0.5794786810874939
-3it [00:14,  4.25s/it]Epoch 2, Loss: 0.4329233169555664
-4it [00:17,  3.79s/it]Epoch 2, Loss: 0.505731999874115
-5it [00:20,  3.75s/it]Epoch 2, Loss: 0.5154804587364197
-6it [00:24,  3.55s/it]Epoch 2, Loss: 0.492310106754303
-7it [00:27,  3.44s/it]Epoch 2, Loss: 0.3200647234916687
-8it [00:28,  3.51s/it]
+1it [00:08,  8.75s/it]Epoch 0, Loss: 2.1244382858276367
+2it [00:11,  5.24s/it]Epoch 0, Loss: 1.7562710046768188
+3it [00:14,  4.39s/it]Epoch 0, Loss: 1.566710114479065
+4it [00:17,  3.78s/it]Epoch 0, Loss: 1.3296332359313965
+5it [00:21,  3.78s/it]Epoch 0, Loss: 1.1466946601867676
+6it [00:24,  3.46s/it]Epoch 0, Loss: 1.117173671722412
+7it [00:27,  3.28s/it]Epoch 0, Loss: 1.1439226865768433
+8it [00:27,  3.50s/it]
+0it [00:00, ?it/s]Epoch 1, Loss: 0.9335495233535767
+1it [00:07,  7.39s/it]Epoch 1, Loss: 0.8097752928733826
+2it [00:10,  4.75s/it]Epoch 1, Loss: 0.7065449357032776
+3it [00:13,  4.11s/it]Epoch 1, Loss: 0.7358012199401855
+4it [00:16,  3.66s/it]Epoch 1, Loss: 0.6768860816955566
+5it [00:19,  3.43s/it]Epoch 1, Loss: 0.6950127482414246
+6it [00:22,  3.29s/it]Epoch 1, Loss: 0.6083701252937317
+7it [00:25,  3.21s/it]Epoch 1, Loss: 0.8438727259635925
+8it [00:26,  3.30s/it]
+0it [00:00, ?it/s]Epoch 2, Loss: 0.5348828434944153
+1it [00:07,  7.35s/it]Epoch 2, Loss: 0.6021637916564941
+2it [00:10,  4.83s/it]Epoch 2, Loss: 0.5794786810874939
+3it [00:13,  4.04s/it]Epoch 2, Loss: 0.43292340636253357
+4it [00:16,  3.67s/it]Epoch 2, Loss: 0.505731999874115
+5it [00:19,  3.48s/it]Epoch 2, Loss: 0.5154805779457092
+6it [00:22,  3.37s/it]Epoch 2, Loss: 0.49231016635894775
+7it [00:26,  3.32s/it]Epoch 2, Loss: 0.3200647234916687
+8it [00:26,  3.36s/it]
 0it [00:00, ?it/s]Epoch 3, Loss: 0.39668595790863037
-1it [00:07,  7.82s/it]Epoch 3, Loss: 0.38602837920188904
-2it [00:11,  5.13s/it]Epoch 3, Loss: 0.484857439994812
-3it [00:14,  4.57s/it]Epoch 3, Loss: 0.5003090500831604
-4it [00:18,  4.08s/it]Epoch 3, Loss: 0.4713086187839508
-5it [00:22,  3.98s/it]Epoch 3, Loss: 0.38520506024360657
-6it [00:25,  3.76s/it]Epoch 3, Loss: 0.39361435174942017
-7it [00:28,  3.64s/it]Epoch 3, Loss: 0.533014714717865
+1it [00:07,  7.54s/it]Epoch 3, Loss: 0.38602837920188904
+2it [00:10,  5.00s/it]Epoch 3, Loss: 0.4848576784133911
+3it [00:14,  4.23s/it]Epoch 3, Loss: 0.5003089904785156
+4it [00:17,  3.86s/it]Epoch 3, Loss: 0.4713086485862732
+5it [00:20,  3.68s/it]Epoch 3, Loss: 0.38520511984825134
+6it [00:24,  3.57s/it]Epoch 3, Loss: 0.39361438155174255
+7it [00:27,  3.51s/it]Epoch 3, Loss: 0.5330144762992859
+8it [00:28,  3.54s/it]
+0it [00:00, ?it/s]Epoch 4, Loss: 0.4420260787010193
+1it [00:07,  7.75s/it]Epoch 4, Loss: 0.48808518052101135
+2it [00:11,  5.21s/it]Epoch 4, Loss: 0.4043685793876648
+3it [00:14,  4.43s/it]Epoch 4, Loss: 0.3899863660335541
+4it [00:18,  4.07s/it]Epoch 4, Loss: 0.33449360728263855
+5it [00:21,  3.90s/it]Epoch 4, Loss: 0.359537273645401
+6it [00:25,  3.81s/it]Epoch 4, Loss: 0.416035920381546
+7it [00:29,  3.78s/it]Epoch 4, Loss: 0.2901308834552765
+8it [00:30,  3.75s/it]
+0it [00:00, ?it/s]Epoch 5, Loss: 0.3155597448348999
+1it [00:08,  8.13s/it]Epoch 5, Loss: 0.3129851222038269
+2it [00:11,  5.50s/it]Epoch 5, Loss: 0.3238106071949005
+3it [00:15,  4.68s/it]Epoch 5, Loss: 0.3284744322299957
+4it [00:19,  4.28s/it]Epoch 5, Loss: 0.36644771695137024
+5it [00:22,  4.05s/it]Epoch 5, Loss: 0.26448485255241394
+6it [00:26,  3.90s/it]Epoch 5, Loss: 0.2964125871658325
+7it [00:30,  3.81s/it]Epoch 5, Loss: 0.4412943720817566
+8it [00:30,  3.86s/it]
+0it [00:00, ?it/s]Epoch 6, Loss: 0.18440303206443787
+1it [00:07,  7.73s/it]Epoch 6, Loss: 0.3190584182739258
+2it [00:11,  5.24s/it]Epoch 6, Loss: 0.3100990355014801
+3it [00:14,  4.45s/it]Epoch 6, Loss: 0.1887485533952713
+4it [00:18,  4.07s/it]Epoch 6, Loss: 0.26985397934913635
+5it [00:21,  3.88s/it]Epoch 6, Loss: 0.23357602953910828
+6it [00:25,  3.76s/it]Epoch 6, Loss: 0.22241522371768951
+7it [00:28,  3.69s/it]Epoch 6, Loss: 0.21057555079460144
 8it [00:29,  3.71s/it]
-0it [00:00, ?it/s]Epoch 4, Loss: 0.4420260488986969
-1it [00:08,  8.11s/it]Epoch 4, Loss: 0.48808518052101135
-2it [00:11,  5.37s/it]Epoch 4, Loss: 0.4043682813644409
-3it [00:15,  4.53s/it]Epoch 4, Loss: 0.3899862766265869
-4it [00:18,  4.14s/it]Epoch 4, Loss: 0.33449363708496094
-5it [00:22,  3.94s/it]Epoch 4, Loss: 0.359537273645401
-6it [00:25,  3.84s/it]Epoch 4, Loss: 0.4160357713699341
-7it [00:29,  3.79s/it]Epoch 4, Loss: 0.2901309132575989
-8it [00:30,  3.81s/it]
-0it [00:00, ?it/s]Epoch 5, Loss: 0.3155597746372223
-1it [00:08,  8.30s/it]Epoch 5, Loss: 0.31298521161079407
-2it [00:11,  5.55s/it]Epoch 5, Loss: 0.32381054759025574
-3it [00:15,  4.67s/it]Epoch 5, Loss: 0.3284744620323181
-4it [00:19,  4.24s/it]Epoch 5, Loss: 0.366447776556015
-5it [00:22,  4.01s/it]Epoch 5, Loss: 0.26448485255241394
-6it [00:26,  3.86s/it]Epoch 5, Loss: 0.29641255736351013
-7it [00:29,  3.76s/it]Epoch 5, Loss: 0.4412946403026581
-8it [00:30,  3.84s/it]
-0it [00:00, ?it/s]Epoch 6, Loss: 0.1844029724597931
-1it [00:08,  8.25s/it]Epoch 6, Loss: 0.31905826926231384
-2it [00:11,  5.42s/it]Epoch 6, Loss: 0.3100990653038025
-3it [00:15,  4.55s/it]Epoch 6, Loss: 0.18874859809875488
-4it [00:18,  4.13s/it]Epoch 6, Loss: 0.2698540687561035
-5it [00:22,  3.91s/it]Epoch 6, Loss: 0.2335759550333023
-6it [00:25,  3.77s/it]Epoch 6, Loss: 0.22241517901420593
-7it [00:29,  3.70s/it]Epoch 6, Loss: 0.2105753868818283
-8it [00:30,  3.76s/it]
-0it [00:00, ?it/s]Epoch 7, Loss: 0.21552151441574097
-1it [00:08,  8.16s/it]Epoch 7, Loss: 0.18301068246364594
-2it [00:11,  5.42s/it]Epoch 7, Loss: 0.14707012474536896
-3it [00:15,  4.58s/it]Epoch 7, Loss: 0.20040935277938843
-4it [00:18,  4.17s/it]Epoch 7, Loss: 0.2197570502758026
-5it [00:22,  3.97s/it]Epoch 7, Loss: 0.15383057296276093
-6it [00:26,  3.85s/it]Epoch 7, Loss: 0.2140781283378601
-7it [00:29,  3.79s/it]Epoch 7, Loss: 0.1361510455608368
-8it [00:30,  3.82s/it]
-0it [00:00, ?it/s]Epoch 8, Loss: 0.1642317920923233
-1it [00:08,  8.13s/it]Epoch 8, Loss: 0.16863955557346344
-2it [00:11,  5.40s/it]Epoch 8, Loss: 0.16241613030433655
-3it [00:15,  4.55s/it]Epoch 8, Loss: 0.06784658879041672
-4it [00:18,  4.14s/it]Epoch 8, Loss: 0.16780942678451538
-5it [00:22,  3.94s/it]Epoch 8, Loss: 0.12040039896965027
-6it [00:25,  3.82s/it]Epoch 8, Loss: 0.11910530924797058
-7it [00:29,  3.74s/it]Epoch 8, Loss: 0.16098691523075104
-8it [00:30,  3.79s/it]
-0it [00:00, ?it/s]Epoch 9, Loss: 0.11889734119176865
-1it [00:08,  8.28s/it]Epoch 9, Loss: 0.04522249847650528
-2it [00:11,  5.44s/it]Epoch 9, Loss: 0.08472469449043274
-3it [00:15,  4.57s/it]Epoch 9, Loss: 0.11242330819368362
-4it [00:18,  4.14s/it]Epoch 9, Loss: 0.08822034299373627
-5it [00:22,  3.93s/it]Epoch 9, Loss: 0.097324438393116
-6it [00:25,  3.80s/it]Epoch 9, Loss: 0.1335265040397644
-7it [00:29,  3.74s/it]Epoch 9, Loss: 0.09370597451925278
-8it [00:30,  3.79s/it]
+0it [00:00, ?it/s]Epoch 7, Loss: 0.21552135050296783
+1it [00:07,  7.74s/it]Epoch 7, Loss: 0.18301063776016235
+2it [00:11,  5.25s/it]Epoch 7, Loss: 0.14707010984420776
+3it [00:14,  4.47s/it]Epoch 7, Loss: 0.20040933787822723
+4it [00:18,  4.11s/it]Epoch 7, Loss: 0.2197570651769638
+5it [00:21,  3.94s/it]Epoch 7, Loss: 0.15383067727088928
+6it [00:25,  3.83s/it]Epoch 7, Loss: 0.21407809853553772
+7it [00:29,  3.79s/it]Epoch 7, Loss: 0.1361510306596756
+8it [00:30,  3.77s/it]
+0it [00:00, ?it/s]Epoch 8, Loss: 0.16423183679580688
+1it [00:07,  7.85s/it]Epoch 8, Loss: 0.16863961517810822
+2it [00:11,  5.30s/it]Epoch 8, Loss: 0.16241611540317535
+3it [00:14,  4.51s/it]Epoch 8, Loss: 0.06784652173519135
+4it [00:18,  4.12s/it]Epoch 8, Loss: 0.16780945658683777
+5it [00:22,  3.93s/it]Epoch 8, Loss: 0.12040044367313385
+6it [00:25,  3.81s/it]Epoch 8, Loss: 0.11910521239042282
+7it [00:29,  3.75s/it]Epoch 8, Loss: 0.16098688542842865
+8it [00:30,  3.77s/it]
+0it [00:00, ?it/s]Epoch 9, Loss: 0.1188974380493164
+1it [00:07,  7.75s/it]Epoch 9, Loss: 0.04522247239947319
+2it [00:11,  5.25s/it]Epoch 9, Loss: 0.08472470939159393
+3it [00:14,  4.48s/it]Epoch 9, Loss: 0.1124233677983284
+4it [00:18,  4.10s/it]Epoch 9, Loss: 0.08822022378444672
+5it [00:21,  3.91s/it]Epoch 9, Loss: 0.097324438393116
+6it [00:25,  3.80s/it]Epoch 9, Loss: 0.13352656364440918
+7it [00:29,  3.75s/it]Epoch 9, Loss: 0.09370598196983337
+8it [00:30,  3.75s/it]
 /usr/local/lib/python3.12/dist-packages/torch/utils/data/dataloader.py:624: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
   warnings.warn(

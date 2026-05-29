@@ -406,7 +406,7 @@ class MNGMMClassifier():
 
         early_stop_flag = False
 
-        if self.global_params is None:
+        if self.global_params is None or self.label_offset <= 0:
             return early_stop_flag, [jnp.ones(1),
                                      jnp.ones(1)]
 

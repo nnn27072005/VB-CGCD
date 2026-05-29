@@ -28,6 +28,7 @@ import utils
 
 import argparse
 import os
+from collections import Counter
 
 torch.manual_seed(42)  # Set random seed for reproducibility
 
@@ -84,28 +85,75 @@ def finetune_dino(train_set, num_classes, model_name="facebook/dino-vitb16"):
 
     lora_model.to(device)
 
-    print(train_set)
+    labels = []
+    if hasattr(train_set, "samples"):
+        labels = [int(sample[1]) for sample in train_set.samples]
+    if labels:
+        class_counts = dict(sorted(Counter(labels).items()))
+        print(
+            f"[FeatureExtractor] samples={len(train_set)} "
+            f"num_classes={num_classes} observed_classes={sorted(class_counts)} "
+            f"class_counts={class_counts}"
+        )
+    else:
+        print(f"[FeatureExtractor] samples={len(train_set)} num_classes={num_classes}")
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=2)
 
     # Training loop
     for epoch in range(epochs):  # Adjust epochs as needed
-        for bidx, batch in tqdm(enumerate(train_loader)):
+        epoch_loss = 0.0
+        epoch_correct = 0
+        epoch_total = 0
+        pooler_norm_sum = 0.0
+        logit_abs_sum = 0.0
+        grad_norm_sum = 0.0
+        n_batches = 0
+
+        for bidx, batch in tqdm(enumerate(train_loader), total=len(train_loader)):
 
             images = batch["images"].to(device)
+            labels = batch["labels"].to(device)
 
             output, pooler_output = lora_model(images)
 
-            cls_loss = F.cross_entropy(output, batch["labels"].to(device))
+            cls_loss = F.cross_entropy(output, labels)
 
             loss = cls_loss
+
+            if not torch.isfinite(loss):
+                raise FloatingPointError(
+                    f"Non-finite feature extractor loss at epoch={epoch}, batch={bidx}: {loss.item()}"
+                )
 
             # Backward pass and optimization
             optimizer.zero_grad()
             loss.backward()
+
+            grad_norm = torch.nn.utils.clip_grad_norm_(lora_model.parameters(), max_norm=10.0)
             optimizer.step()
 
-            print(f"Epoch {epoch}, Loss: {loss.item()}")
+            with torch.no_grad():
+                pred = output.argmax(dim=1)
+                epoch_loss += loss.item() * labels.size(0)
+                epoch_correct += (pred == labels).sum().item()
+                epoch_total += labels.size(0)
+                pooler_norm_sum += pooler_output.norm(dim=1).mean().item()
+                logit_abs_sum += output.detach().abs().mean().item()
+                grad_norm_sum += float(grad_norm)
+                n_batches += 1
+
+        avg_loss = epoch_loss / max(epoch_total, 1)
+        train_acc = 100.0 * epoch_correct / max(epoch_total, 1)
+        avg_pooler_norm = pooler_norm_sum / max(n_batches, 1)
+        avg_logit_abs = logit_abs_sum / max(n_batches, 1)
+        avg_grad_norm = grad_norm_sum / max(n_batches, 1)
+        print(
+            f"[FeatureExtractor] Epoch {epoch + 1}/{epochs} "
+            f"loss={avg_loss:.4f} train_acc={train_acc:.2f}% "
+            f"pooler_norm={avg_pooler_norm:.4f} "
+            f"logit_abs={avg_logit_abs:.4f} grad_norm={avg_grad_norm:.4f}"
+        )
 
     return lora_model.backbone
 

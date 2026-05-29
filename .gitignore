@@ -186,3 +186,4 @@ __pycache__
 **/*.pkl
 **/*.joblib
 
+GC10-DET/
