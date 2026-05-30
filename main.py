@@ -20,6 +20,7 @@ from dataloaders.tinyimagenet import TinyImageNetLoader
 from dataloaders.imagenet100 import ImageNet100Loader
 from dataloaders.cub200 import CUB200Loader
 from dataloaders.gc10det import GC10_DETLoader
+from dataloaders.neudet import NEU_DETLoader
 from classifier.mngmm import MNGMMClassifier
 
 from clustering.gmm import GMMCluster
@@ -166,6 +167,14 @@ def Dataloader(args):
         train_loader, test_loader, test_old_loader, test_all_loader = loader.makeT5Loader()
  
         train_loader, test_loader, test_old_loader, test_all_loader = loader.makeT5Loader()
+    elif args.dataset in ('neudet', 'neu-det'):
+        args.num_classes = 6
+        args.base = 3
+        args.increment = 1
+        args.num_dim = 384
+
+        neudet_loader = NEU_DETLoader(args=args)
+        train_loader, test_loader, test_old_loader, test_all_loader = load_mode(args, neudet_loader)
     else:
         raise ValueError('Dataset not supported')
 

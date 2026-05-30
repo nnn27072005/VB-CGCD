@@ -1,4 +1,3 @@
-%%writefile /kaggle/working/VB-CGCD-main/feature_extractor/dino-neu.py
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time    : 2026/05/29
@@ -6,6 +5,7 @@
 
 import argparse
 import os
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -13,6 +13,26 @@ import torchvision
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
+
+
+def find_neudet_split_dirs(data_dir):
+    root = Path(data_dir)
+    candidates = [
+        (root / "train" / "images", root / "validation" / "images"),
+        (root / "train" / "images", root / "test" / "images"),
+        (root / "train", root / "validation"),
+        (root / "train", root / "test"),
+    ]
+
+    for train_dir, test_dir in candidates:
+        if train_dir.is_dir() and test_dir.is_dir():
+            return train_dir, test_dir
+
+    raise FileNotFoundError(
+        f"Could not find NEU-DET train/validation image folders under {root}. "
+        "Expected e.g. NEU-DET/train/images/<class> and "
+        "NEU-DET/validation/images/<class>."
+    )
 
 
 def infer_features_labels(dino, data_loader, features_dir, labels_dir, device, args):
@@ -70,6 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', default=42, type=int, help='Random seed')
     parser.add_argument("--img_size", default=224, type=int, help="Resolution size")
     parser.add_argument("--model", default="dinov2_vitb14", type=str, help="Model name")
+    parser.add_argument("--data_dir", default="NEU-DET", type=str, help="Path to NEU-DET root folder")
     
     # Đưa thư mục đầu ra vào đúng nhóm 'output-features/neu-det' để cô lập dữ liệu
     parser.add_argument("--output_dir", default="output-features/neu-det", type=str, help="Output directory")
@@ -92,18 +113,19 @@ if __name__ == '__main__':
         torchvision.transforms.Normalize(mean=torch.tensor(mean), std=torch.tensor(std))
     ])
 
-    # Đọc trực tiếp từ thư mục ảnh thô NEU_GCD_Dataset
-    dataset_root = "NEU_GCD_Dataset"
+    print(f"[*] Đang quét dữ liệu NEU-DET từ danh mục: {args.data_dir}")
+    train_dir, valid_dir = find_neudet_split_dirs(args.data_dir)
+    train_dataset = ImageFolder(root=train_dir, transform=train_transforms)
+    valid_dataset = ImageFolder(root=valid_dir, transform=train_transforms)
 
-    print(f"[*] Đang quét toàn bộ ảnh lỗi từ danh mục: {dataset_root}")
-    full_dataset = ImageFolder(root=dataset_root, transform=train_transforms)
-    
-    # Chia dataset gốc thành 2 luồng Train/Test ảo ngay trong bộ nhớ theo tỷ lệ 80/20
-    generator = torch.Generator().manual_seed(args.seed)
-    train_sub, valid_sub = torch.utils.data.random_split(full_dataset, [0.8, 0.2], generator=generator)
+    if train_dataset.class_to_idx != valid_dataset.class_to_idx:
+        raise ValueError(
+            "Train and validation class folders do not match: "
+            f"{train_dataset.class_to_idx} != {valid_dataset.class_to_idx}"
+        )
 
-    train_loader = DataLoader(train_sub, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
-    test_loader = DataLoader(valid_sub, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    test_loader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
     # model_name = args.model.replace("_", "-")
     # dino = torch.hub.load('facebookresearch/dinov2', 'dinov2_vitb14' if args.model == "dinov2_vitb14" else args.model)

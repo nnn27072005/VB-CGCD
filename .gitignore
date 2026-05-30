@@ -187,3 +187,5 @@ __pycache__
 **/*.joblib
 
 GC10-DET/
+
+NEU-DET/
