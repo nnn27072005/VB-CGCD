@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torchvision
+from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
@@ -74,6 +75,18 @@ def merge_npy(features_dir, labels_dir, prefix, model_name, output_dir):
     np.save(f"{final_output_dir}/{prefix['feature']}-{model_name}.npy", merged_array(feature_files))
     np.save(f"{final_output_dir}/{prefix['label']}-{model_name}.npy", merged_array(label_files))
     print(f"[=>] Đã gom cụm dữ liệu tổng hợp tại: {final_output_dir}")
+
+
+def save_image_mapping(dataset, output_dir, prefix, model_name):
+    final_output_dir = f"{output_dir}/{model_name}"
+    os.makedirs(final_output_dir, exist_ok=True)
+
+    images = []
+    for image_path, _ in tqdm(dataset.samples, desc=f"Saving {prefix} images"):
+        image = Image.open(image_path).convert("RGB")
+        images.append(np.asarray(image, dtype=np.uint8))
+
+    np.save(f"{final_output_dir}/{prefix}_images-{model_name}.npy", np.stack(images, axis=0))
 
 
 if __name__ == '__main__':
@@ -151,6 +164,7 @@ if __name__ == '__main__':
 
     infer_features_labels(dino, train_loader, features_dir, labels_dir, args.device, args)
     merge_npy(features_dir, labels_dir, {"feature": "features", "label": "labels"}, model_name, args.output_dir)
+    save_image_mapping(train_dataset, args.output_dir, "train", model_name)
 
     # --- 2. XỬ LÝ TRÍCH XUẤT TẬP TEST (Sinh ra folder chứa batch nhỏ cho kiểm thử) ---
     print(f"\n[>>>] Đang xử lý luồng TEST...")
@@ -159,5 +173,6 @@ if __name__ == '__main__':
 
     infer_features_labels(dino, test_loader, features_dir, labels_dir, args.device, args)
     merge_npy(features_dir, labels_dir, {"feature": "test_features", "label": "test_labels"}, model_name, args.output_dir)
+    save_image_mapping(valid_dataset, args.output_dir, "test", model_name)
 
     print("\n[==>] Hoàn tất")
