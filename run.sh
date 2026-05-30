@@ -5,9 +5,11 @@ python feature_extractor/dino-tinyimagenet.py --finetuned --output_dir datasets/
 python feature_extractor/dino-imagenet100.py --finetuned --output_dir datasets/imagenet100
 python feature_extractor/dino-cub200.py --finetuned --output_dir datasets/cub200
 python feature_extractor/dino-gc10det.py --dataset_path datasets/raw/gc10det --finetuned --output_dir datasets/gc10det
+python feature_extractor/dino-neudet.py --data_dir NEU-DET --model dino_vitb16 --output_dir datasets/neudet
 
 python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl --data_dir datasets/cifar100 --trail_name mix_increment_mngmm_dinovb16_sl_cifar_100
 python main.py --base 100 --increment 20 --pretrained_model_name dino-vitb16-sl --dataset tinyimagenet --data_dir datasets/tinyimagenet --num_classes 200 --trail_name mix_increment_mngmm_dinovb16_sl_tiny_imagenet
 python main.py --base 50 --increment 10 --pretrained_model_name dino-vitb16-sl --dataset imagenet100 --data_dir datasets/imagenet100 --trail_name mix_increment_mngmm_dinovb16_sl_imagenet100
 python main.py --base 100 --increment 20 --pretrained_model_name dino-vitb16-sl --dataset cub200 --data_dir datasets/cub200 --num_classes 200 --trail_name mix_increment_mngmm_dinovb16_sl_cub200
 python main.py --base 5 --increment 1 --pretrained_model_name dino-vitb16-sl --dataset gc10det --data_dir datasets/gc10det --num_classes 10 --num_dim 128 --trail_name mix_increment_mngmm_dinovb16_sl_gc10det
+python main.py --dataset neudet --pretrained_model_name dino-vitb16 --data_dir datasets/neudet --trail_name mix_increment_mngmm_dinovb16_neudet
